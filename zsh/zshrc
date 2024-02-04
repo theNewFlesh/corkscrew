@@ -1,0 +1,40 @@
+# ZSH---------------------------------------------------------------------------
+export ZSH=~/.oh-my-zsh
+
+COMPLETION_WAITING_DOTS="true"
+DISABLE_AUTO_UPDATE="true"
+ENABLE_CORRECTION="true"
+ZSH_THEME="henanigans"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5D5D7A"
+ZSH_CACHE_DIR="$HOME/.zsh_cache"
+ZSH_COMPDUMP=$ZSH_CACHE_DIR/.zcompdump-$HOST
+mkdir -p $ZSH_CACHE_DIR
+
+fpath=(~/.oh-my-zsh/custom/completions $fpath)
+plugins=(
+    aws
+    brew
+    common-aliases
+    command-not-found
+    debian
+    gem
+    git
+    npm
+    pip
+    python
+    ruby
+    sudo
+    fast-syntax-highlighting
+    zsh-autosuggestions
+    zsh-completions
+    zsh-history-enquirer
+)
+export ZSH_DISABLE_COMPFIX=true
+source $ZSH/oh-my-zsh.sh
+source $ZSH/oh-my-zsh.sh
+zstyle ':completion:*:*:cd:*' list-colors '=*=36;40' tag-order local-directories directory-stack path-directories
+
+# SCRIPTS-----------------------------------------------------------------------
+for script in $ZSH/custom/scripts/*; do
+    source $script
+done

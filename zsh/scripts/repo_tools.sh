@@ -1,0 +1,243 @@
+_repo_list_long () {
+    # List all git repo fullpaths under a given directory
+    # args: directory=~/Documents/projects
+    local home=`echo ~`;
+    local projects="$home/Documents/projects";
+    if [ "$1" ]; then local projects=$1; fi;
+    find $projects -maxdepth 2 \
+        | grep -E '\.git$' \
+        | sed -E 's/\/\.git$//' \
+        | sort;
+}
+
+repo_list () {
+    # List all git repos under a given directory
+    # args: directory=~/Documents/projects
+    _repo_list_long $1 | sed -E 's/.*\///' | sort;
+}
+
+_repo_status_long () {
+    # List git status of all git repos (fullpaths) under given directory
+    # args: directory=~/Documents/projects
+    _repo_list_long $1 \
+    | parallel "echo '{}XXXXX'; cd {}; git status -s; echo ' EOF'" \
+    | tr '\n' ' ' \
+    | tr EOF '\n' \
+    | parallel "echo {} \
+    | sed -E 's/^ +//g'" \
+    | grep -vE '^$' \
+    | sort \
+    | parallel "
+        echo {} \
+        | sed -E 's/XXXXX  $/ \\${GREEN1}clean\\${CLEAR}/' \
+        | sed -E 's/XXXXX...+/ \\${RED1}dirty\\${CLEAR}/'
+    " \
+    | awk '{print $2, $1}' \
+    | sort \
+    | parallel 'echo -e {}';
+}
+
+repo_status () {
+    # List git status of all git repos under given directory
+    # args: directory=~/Documents/projects
+    _repo_status_long $1 | sed 's/\/.*\///';
+}
+
+repo_dirty_details () {
+    # List only dirty git repos under a given directory
+    # args: directory=~/Documents/projects
+    _repo_status_long $1 | grep dirty | awk '{print $2}' \
+    | f "cd {}; git status --porcelain \
+        | sed 's/.M /modified /' \
+        | sed 's/.A /added /' \
+        | sed 's/.D /deleted /' \
+        | sed 's/.R /renamed /' \
+        | sed 's/.C /copied /' \
+        | sed 's/.U /updated /' \
+        | sed 's/?? /untracked /' \
+        | awk '{printf(\"%-15s %s\n\", \$1, \$2)}'
+    "
+}
+
+repo_branches () {
+    # List git branches of all git repos under given directory
+    # args: directory=~/Documents/projects
+    _repo_list_long $1 \
+    | parallel "
+        echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
+        cd {}; echo -n '${GREEN}  '; \
+        git branch --show-current; \
+        echo -n '${CLEAR}'; \
+        git branch --all --list | grep -vE '\*|dependabot'; \
+        echo
+    ";
+}
+
+repo_local_branches () {
+    # List all local git branches of all git repos under given directory
+    # args: directory=~/Documents/projects
+    repo_branches $1 \
+        | grep -v remote \
+        | tr '\n' '|' \
+        | sed 's/||/\n/g' \
+        | awk -F '|' '{printf("%-30s %-30s %-30s %-30s %-30s %-30s\n", $1, $2, $3, $4, $5, $6)}';
+}
+
+repo_pull () {
+    # Git pull all clean repos under given directory
+    # args: directory=~/Documents/projects
+    local pwd=`pwd`; \
+    _repo_status_long $1 \
+    | grep clean \
+    | awk '{print $2}' \
+    | parallel "
+        echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}' && \
+        cd {} && \
+        git pull && \
+        echo $SPACER
+    "; \
+    cd $pwd; \
+}
+
+_repo_versions () {
+    # List all git version tags of all git repos (fullpath) under given directory
+    # args: directory=~/Documents/projects
+    local pwd=`pwd`;
+    cd $1;
+    git --no-pager log \
+        --format='%H | %s | %d' \
+        --grep '[0-9]\+\.[0-9]\+\.[0-9]\+' \
+    | awk -F '|' '{printf("%-45s %-35s %-35s\n", $1, $2, $3)}';
+    cd $pwd;
+}
+
+repo_versions () {
+    # List all git version tags of all git repos under given directory
+    # args: directory=~/Documents/projects
+    if [ "$1" ]; then
+        _repo_versions $1;
+    else
+        local home=`echo ~`;
+        local projects="$home/Documents/projects";
+        repo_list | f "\
+            source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+            _repo_versions $projects/{} \
+        "
+    fi;
+}
+
+repo_version () {
+    local cwd='.';
+    if [ "$1" ]; then local cwd=$1; fi;
+
+    # look for version file
+    local filepath=`find $cwd \
+            -maxdepth 3 \
+            -type f \
+            ! -path "**/node_modules/*" \
+            ! -path "**/.git/*" \
+            ! -path "**/labextension/*" \
+        | grep -E 'config/pyproject.toml|version.txt|galaxy.yml' \
+        | head -n 1 \
+    `;
+
+    # look at Chart.yaml files if no version file found
+    if [ "$filepath" = '' ]; then
+        local filepath=`find $cwd \
+                -maxdepth 2 \
+                -type f \
+                ! -path "**/node_modules/*" \
+                ! -path "**/.git/*" \
+                ! -path "**/labextension/*" \
+            | grep -E 'Chart.yaml' \
+            | head -n 1 \
+        `;
+    fi;
+
+    # look at package.json files if no version file found
+    if [ "$filepath" = '' ]; then
+        local filepath=`find $cwd \
+                -maxdepth 2 \
+                -type f \
+                ! -path "**/node_modules/*" \
+                ! -path "**/.git/*" \
+                ! -path "**/labextension/*" \
+            | grep -E 'package.json' \
+            | head -n 1 \
+        `;
+    fi;
+
+    local filename=`echo $filepath | sed -E 's/.*\///'`;
+    local version="none";
+
+    # get version
+    if [ "$filename" = 'pyproject.toml' ]; then
+        local version=`cat $filepath 2> /dev/null \
+            | grep -E '^version *=' \
+            | awk '{print $3}' \
+            | sed 's/"//g'`;
+
+    elif [ "$filename" = 'version.txt' ]; then
+        local version=`cat $filepath 2> /dev/null`;
+
+    elif [ "$filename" = 'galaxy.yml' ]; then
+        local version=`cat $filepath 2> /dev/null \
+            | grep -E '^version: ' \
+            | awk '{print $2}' \
+        `;
+
+    elif [ "$filename" = 'Chart.yaml' ]; then
+        local version=`cat $filepath 2> /dev/null \
+            | grep -E '^version: ' \
+            | awk '{print $2}' \
+        `;
+
+    elif [ "$filename" = 'package.json' ]; then
+        local version=`cat $filepath 2> /dev/null \
+            | grep -E '"version": ' \
+            | sed -E 's/("|,)//g' \
+            | awk '{print $2}' \
+        `;
+    fi;
+
+    # assign version to none if nothing is found
+    if [ "$version" = '' ]; then
+        local version="none";
+    fi;
+    echo "$version";
+}
+
+_repo_state () {
+    # List git statu of all git repos (fullpath) under given directory in simple table
+    # args: directory=~/Documents/projects
+    local pwd=`pwd`;
+    cd $1;
+    local REPO=`echo $1 | sed -E 's/.*\///'`;
+    local VERSION=`
+        source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+        repo_version . \
+    `;
+    local BRANCH=`git branch --show-current`;
+    local COMMIT=`git --no-pager log -n 1 --abbrev-commit | head -n 1 | sed -E 's/^commit +//'`;
+    local MESSAGE=`git --no-pager log -n 1 | tail -n 1 | sed -E 's/^ +//' | cut -c -50`;
+    local STATUS=`git status -s`;
+    local STATE="${GREEN1}clean${CLEAR}";
+    if [ "$STATUS" ]; then
+        local STATE="${RED1}dirty${CLEAR}";
+    fi;
+    echo "repo: ${CYAN1}$REPO${CLEAR}\
+|version: ${YELLOW1}$VERSION${CLEAR}\
+|state: ${STATE}\
+|branch: ${GREEN1}$BRANCH${CLEAR}\
+|commit: ${RED1}$COMMIT${CLEAR}\
+|message: ${BLUE1}$MESSAGE${CLEAR}";
+}
+
+repo_state () {
+    # List git statu of all git repos under given directory in simple table
+    # args: directory=~/Documents/projects
+    _repo_list_long $1 | parallel \
+        "source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; _repo_state {}" \
+    | sort \
+    | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}';
+}
