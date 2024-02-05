@@ -20,21 +20,21 @@ _repo_status_long () {
     # List git status of all git repos (fullpaths) under given directory
     # args: directory=~/Documents/projects
     _repo_list_long $1 \
-    | parallel "echo '{}XXXXX'; cd {}; git status -s; echo ' EOF'" \
-    | tr '\n' ' ' \
-    | tr EOF '\n' \
-    | parallel "echo {} \
-    | sed -E 's/^ +//g'" \
-    | grep -vE '^$' \
-    | sort \
-    | parallel "
-        echo {} \
-        | sed -E 's/XXXXX  $/ \\${GREEN1}clean\\${CLEAR}/' \
-        | sed -E 's/XXXXX...+/ \\${RED1}dirty\\${CLEAR}/'
-    " \
-    | awk '{print $2, $1}' \
-    | sort \
-    | parallel 'echo -e {}';
+        | parallel "echo '{}XXXXX'; cd {}; git status -s; echo ' EOF'" \
+        | tr '\n' ' ' \
+        | tr EOF '\n' \
+        | parallel "echo {} \
+        | sed -E 's/^ +//g'" \
+        | grep -vE '^$' \
+        | sort \
+        | parallel "
+            echo {} \
+            | sed -E 's/XXXXX  $/ \\${GREEN1}clean\\${CLEAR}/' \
+            | sed -E 's/XXXXX...+/ \\${RED1}dirty\\${CLEAR}/'
+        " \
+        | awk '{print $2, $1}' \
+        | sort \
+        | parallel 'echo -e {}';
 }
 
 repo_status () {
@@ -47,7 +47,7 @@ repo_dirty_details () {
     # List only dirty git repos under a given directory
     # args: directory=~/Documents/projects
     _repo_status_long $1 | grep dirty | awk '{print $2}' \
-    | f "cd {}; git status --porcelain \
+        | f "cd {}; git status --porcelain \
         | sed 's/.M /modified /' \
         | sed 's/.A /added /' \
         | sed 's/.D /deleted /' \
