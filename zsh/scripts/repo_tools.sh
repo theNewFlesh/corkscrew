@@ -88,14 +88,14 @@ repo_pull () {
     # args: directory=~/Documents/projects
     local pwd=`pwd`; \
     _repo_status_long $1 \
-    | grep clean \
-    | awk '{print $2}' \
-    | parallel "
-        echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}' && \
-        cd {} && \
-        git pull && \
-        echo $SPACER
-    "; \
+        | grep clean \
+        | awk '{print $2}' \
+        | parallel "
+            echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}' && \
+            cd {} && \
+            git pull && \
+            echo $SPACER
+        "; \
     cd $pwd; \
 }
 
