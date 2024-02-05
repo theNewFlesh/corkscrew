@@ -34,8 +34,8 @@
 Corkscrew is library of various zsh functions and other command line tools
 oriented towards MacOS and Ubuntu power users.
 
-Corkscrew depends on zsh, oh-my-zsh, zsh plugins and other unix cli tools.
-Install whatver you like, just know that some tools will expect certain
+Corkscrew depends on zsh, oh-my-zsh, zsh plugins and other unix CLI tools.
+Install whatever you like, just know that some tools will expect certain
 things you do not have. It is highly recommended you look over the code before
 installation, as you may wish to comment out certain parts according to your
 taste.
