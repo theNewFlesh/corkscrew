@@ -9,12 +9,16 @@ ls_alias () {
 
 ls_cmd () {
     # List all custom commands
+    local CLEAR='\033[0m';
+    local CYAN1='\033[0;36m';
     find $ZSH/custom/scripts -type f \
         | grep tools \
-        | parallel "cat {} | grep -E '\(\) \{'" \
-        | grep -vE '^_' \
-        | awk '{print $1}' \
-        | sort;
+        | parallel " \
+            cat {} \
+            | grep -E '\(\) \{' -A 2 \
+            | grep -E '\(\)|#' \
+            | sed -E 's/^ *(.*) \(\) \{/\n\\\\$CYAN1\1\\\\$CLEAR/' \
+        " | parallel 'echo {}';
 }
 
 ls_displays () {
