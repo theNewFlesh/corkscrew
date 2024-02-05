@@ -51,7 +51,7 @@ notebook_cells () {
     | parallel 'echo {}';
 }
 
-to_mp4 () { \
+to_mp4 () {
     # Convert given file to mp4
     # args: video file
     local SHAPE=`ffmpeg -i $1 2>&1 \
