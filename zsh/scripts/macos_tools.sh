@@ -1,7 +1,7 @@
 if [[ `uname` == "Darwin" ]]; then
     bindkey '^P' kill-line
 
-    bettersnap () { \
+    bettersnap () {
         defaults import com.hegenberg.BetterSnapTool ~/Documents/misc/bettersnaptool/$1.plist; \
         killproc bettersnap; \
         open /Applications/BetterSnapTool.app; \
