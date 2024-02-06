@@ -10,7 +10,7 @@ stdout_apply () {
 }
 
 stdout_buffer () {
-    # Cleanup given input, removing color codes
+    # Append spaces to each input line until end of terminal buffer
     local WIDTH=`tput cols`;
     while read -r LINE; do
         local DECOLOR=`echo $LINE | stdout_decolor`;
@@ -26,14 +26,14 @@ print(line + buff + '\x1b[0;0m')
 }
 
 stdout_decolor () {
-    # Cleanup given input, removing color codes
+    # Remove color codes from input text
     while read -r data; do
         /bin/cat -v <<< "$data" | sed -E 's/\^\[\[(.;.)?.m//g';
     done;
 }
 
 stdout_raw () {
-    # Returns given output with colot codes
+    # Convert invisible color codes to raw output
     while read -r data; do
         /bin/cat -v <<< "$data";
     done;
