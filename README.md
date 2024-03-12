@@ -73,6 +73,7 @@ taste.
 
 ## Packages
   - batcat
+  - cruft
   - docker
   - dockviz
   - exa

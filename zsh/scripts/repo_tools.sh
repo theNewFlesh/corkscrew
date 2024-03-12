@@ -241,3 +241,45 @@ repo_state () {
     | sort \
     | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}';
 }
+
+repo_cruft_update () {
+    # Apply cruft template update to given repository
+    # args: repo directory
+    # setup directory and vars
+    local template=`cat $1/.cruft.json | jq '.template' | sed 's/"//g'`;
+    local repo=`cat $1/.cruft.json | jq '.context.cookiecutter.repo' | sed 's/"//g'`;
+    local docs=`ls $1 | grep -E 'docs|public'`;
+    rm -rf /tmp/cruft;
+    mkdir -p /tmp/cruft;
+    cd /tmp/cruft;
+
+    # create cookiecutter.json
+    cp $1/.cruft.json ./;
+    echo '{"default_context":' > /tmp/cruft/cookiecutter.json;
+    cat .cruft.json | jq '.context.cookiecutter' >> cookiecutter.json;
+    echo '}' >> cookiecutter.json;
+
+    # cruft create
+    cruft create $template --no-input --config-file cookiecutter.json;
+
+    # git checkout new branch
+    rm -f cookiecutter.json;
+    mv -f .cruft.json /tmp/cruft/$repo/;
+    cp -r $1/.git /tmp/cruft/$repo/;
+    
+    # checkout cruft branch
+    cd $1;
+    git checkout -b cruft-template-update;
+
+    # integrate changes
+    cd /tmp/cruft/$repo;
+    git status --porcelain \
+        | grep -vE '^ ?D' \
+        | awk '{print $2}' \
+        | grep -vE '^(public|docs)/|^docker/config/(dev|prod).lock' \
+        | parallel "cp -r /tmp/cruft/$repo/{} $1/{}";
+
+    # cleanup
+    cd $1;
+    rm -rf /tmp/cruft;
+}
