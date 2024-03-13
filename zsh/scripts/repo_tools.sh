@@ -266,17 +266,19 @@ repo_cruft_update () {
     rm -f cookiecutter.json;
     mv -f .cruft.json /tmp/cruft/$repo/;
     cp -r $1/.git /tmp/cruft/$repo/;
-    
+
     # checkout cruft branch
     cd $1;
     git checkout -b cruft-template-update;
 
     # integrate changes
     cd /tmp/cruft/$repo;
-    git status --porcelain \
-        | grep -vE '^ ?D' \
-        | awk '{print $2}' \
-        | grep -vE '^(public|docs)/|^docker/config/(dev|prod).lock' \
+    local files=`git status --porcelain | grep -vE '^ ?D' | awk '{print $2}'`;
+    echo $files \
+        | grep -vE '^(public|docs)/|^docker/config/(dev|prod)\.lock$|__init__|gitkeep|\.py$|\.rst$|/$' \
+        | parallel "cp -r /tmp/cruft/$repo/{} $1/{}";
+    echo $files \
+        | grep -E '(command|cli)\.py$' \
         | parallel "cp -r /tmp/cruft/$repo/{} $1/{}";
 
     # cleanup
