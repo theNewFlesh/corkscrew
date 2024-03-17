@@ -244,44 +244,24 @@ repo_state () {
 
 repo_cruft_update () {
     # Apply cruft template update to given repository
-    # args: repo directory
-    # setup directory and vars
-    local template=`cat $1/.cruft.json | jq '.template' | sed 's/"//g'`;
-    local repo=`cat $1/.cruft.json | jq '.context.cookiecutter.repo' | sed 's/"//g'`;
-    local docs=`ls $1 | grep -E 'docs|public'`;
-    rm -rf /tmp/cruft;
-    mkdir -p /tmp/cruft;
-    cd /tmp/cruft;
-
-    # create cookiecutter.json
-    cp $1/.cruft.json ./;
-    echo '{"default_context":' > /tmp/cruft/cookiecutter.json;
-    cat .cruft.json | jq '.context.cookiecutter' >> cookiecutter.json;
-    echo '}' >> cookiecutter.json;
-
-    # cruft create
-    cruft create $template --no-input --config-file cookiecutter.json;
-
-    # git checkout new branch
-    rm -f cookiecutter.json;
-    mv -f .cruft.json /tmp/cruft/$repo/;
-    cp -r $1/.git /tmp/cruft/$repo/;
-
-    # checkout cruft branch
-    cd $1;
-    git checkout -b cruft-template-update;
-
-    # integrate changes
-    cd /tmp/cruft/$repo;
-    local files=`git status --porcelain | grep -vE '^ ?D' | awk '{print $2}'`;
-    echo $files \
-        | grep -vE '^(public|docs)/|^docker/config/(dev|prod)\.lock$|__init__|gitkeep|\.py$|\.rst$|/$' \
-        | parallel "cp -r /tmp/cruft/$repo/{} $1/{}";
-    echo $files \
-        | grep -E '(command|cli)\.py$' \
-        | parallel "cp -r /tmp/cruft/$repo/{} $1/{}";
-
-    # cleanup
-    cd $1;
-    rm -rf /tmp/cruft;
+    cruft diff > /tmp/cruft.diff;
+    git apply /tmp/cruft.diff;
+    rm -f /tmp/cruft.diff;
+    local diff=`git --no-pager diff --name-only | tr '\n' ' '`;
+    local cmd=$(cat <<EOF
+import re
+import json
+with open('.cruft.json') as f:
+    data = json.load(f)
+skip = data['skip']
+skip_re = '|'.join(skip)
+diff = '$diff'.split(' ')
+output = filter(lambda x: re.search(skip_re, x), diff)
+output = ' '.join(list(output))
+print(output)
+EOF
+)
+    echo "\n${CYAN}REMOVING CHANGES FROM${CLEAR}";
+    python3 -c "$cmd" | tr ' ' '\n' | sed -E 's/^/    /';
+    git checkout HEAD -- `python3 -c "$cmd"`;
 }
