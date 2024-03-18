@@ -244,7 +244,7 @@ repo_state () {
 
 repo_cruft_update () {
     # Apply cruft template update to given repository
-    cruft diff > /tmp/cruft.diff;
+    cruft diff --checkout HEAD > /tmp/cruft.diff;
     git apply /tmp/cruft.diff;
     rm -f /tmp/cruft.diff;
     local diff=`git --no-pager diff --name-only | tr '\n' ' '`;
