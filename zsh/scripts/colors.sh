@@ -1,6 +1,5 @@
 export BLUE1='\033[0;34m'
 export BLUE2='\033[0;94m'
-export CLEAR='\033[0m'
 export CYAN1='\033[0;36m'
 export CYAN2='\033[0;96m'
 export GREEN1='\033[0;32m'
@@ -14,4 +13,5 @@ export RED2='\033[0;91m'
 export WHITE='\033[0;97m'
 export YELLOW1='\033[0;33m'
 export YELLOW2='\033[0;93m'
+export CLEAR='\033[0m'
 export SPACER=`repeat 100 printf '-'; print`
