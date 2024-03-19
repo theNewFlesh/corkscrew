@@ -17,7 +17,7 @@ ls_cmd () {
             cat {} \
             | grep -E '\(\) \{' -A 2 \
             | grep -E '\(\)|#' \
-            | sed -E 's/^ *(.*) \(\) \{/\n\\\\$CYAN1\1\\\\$CLEAR/' \
+            | sed -E 's/^ *(.*) \(\) \{/\n\\$CYAN1\1\\$CLEAR/' \
         " | parallel 'echo {}';
 }
 
