@@ -110,3 +110,14 @@ progress () {
         if [[ "$2" != '--no-clear' ]]; then clear; fi;
     done;
 }
+
+lookup () {
+    # Searches all custom commands and aliases with given regex
+    # args: regex
+    (ls_cmd && ls_alias) \
+    | stdout_decolor \
+    | grep -iE "$1" \
+    | sed -E "s/'//g" \
+    | stdout_buffer \
+    | stdout_stripe;
+}
