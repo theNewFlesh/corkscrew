@@ -116,6 +116,7 @@ lookup () {
     # args: regex
     (ls_cmd && ls_alias) \
     | stdout_decolor \
+    | sort \
     | grep -iE "$1" \
     | sed -E "s/'//g" \
     | stdout_buffer \
