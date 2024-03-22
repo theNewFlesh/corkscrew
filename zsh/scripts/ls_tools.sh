@@ -19,8 +19,10 @@ ls_cmd () {
         | tr '@' '\n' \
         | sed -E 's/^ +//' \
         | grep -vE '^$' \
-        | awk -F '#' '{printf("${CYAN2}%-40s${CLEAR} %-90s %s\n", $1, $2, $3)}' \
-        | parallel 'echo "{}"' 2>/dev/null \
+        | awk \
+            -F '#' \
+            -v cyan="$CYAN2" -v clear="$CLEAR" \
+            '{printf cyan "%-40s" clear "%-90s" "%s\n", $1, $2, $3}' \
         | sed -E "s/^'|'$//g" \
         | sort;
 }
