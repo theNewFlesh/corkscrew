@@ -99,6 +99,22 @@ repo_pull () {
     cd $pwd; \
 }
 
+repo_prune () {
+    # Git remote prune origin all repos under given directory
+    # args: directory=~/Documents/projects
+    local pwd=`pwd`; \
+    _repo_status_long $1 \
+        | grep clean \
+        | awk '{print $2}' \
+        | parallel "
+            echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}' && \
+            cd {} && \
+            git remote prune origin && \
+            echo $SPACER
+        "; \
+    cd $pwd; \
+}
+
 _repo_versions () {
     # List all git version tags of all git repos (fullpath) under given directory
     # args: directory=~/Documents/projects
