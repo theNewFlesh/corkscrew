@@ -87,8 +87,7 @@ repo_branches () {
         source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
         echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
         cd {}; \
-        _repo_branches {} \
-        | sed -E 's/$(git branch --show-current)/\\${GREEN}\0\\${CLEAR}/'; \
+        _repo_branches {}; \
         echo \
     " | parallel 'echo {}';
 }
