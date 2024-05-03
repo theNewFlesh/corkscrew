@@ -63,24 +63,24 @@ repo_branches () {
     # List git branches of all git repos under given directory
     # args: directory=~/Documents/projects
     _repo_list_long $1 \
-    | parallel "
+    | parallel " \
         echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
-        cd {}; echo -n '${GREEN}  '; \
-        git branch --show-current; \
-        echo -n '${CLEAR}'; \
-        git branch --all --list | grep -vE '\*|dependabot'; \
-        echo
+        cd {}; \
+        git --no-pager branch --all --format '%(refname)' 2>&1 \
+        | grep -vE 'HEAD|dependabot|warning: ' \
+        | sed -E 's/.*\/heads/local/' \
+        | sed -E 's/.*\/origin/remote;/' \
+        | sed -E 's/(.*)\/(.*)/\2\/\1/' \
+        | sort \
+        | tr '\n' ' ' \
+        | tr ';' '\n' \
+        | sed -E 's/^ +//' \
+        | sed -E 's/ .*\//\//' \
+        | awk -F '/' '{printf(\"%-30s ;%-8s %s\n\", \$1, \$2, \$3)}' \
+        | sed -E 's/;remote +$/;         remote/' \
+        | sed 's/;//'; \
+        echo; \
     ";
-}
-
-repo_local_branches () {
-    # List all local git branches of all git repos under given directory
-    # args: directory=~/Documents/projects
-    repo_branches $1 \
-        | grep -v remote \
-        | tr '\n' '|' \
-        | sed 's/||/\n/g' \
-        | awk -F '|' '{printf("%-30s %-30s %-30s %-30s %-30s %-30s\n", $1, $2, $3, $4, $5, $6)}';
 }
 
 repo_pull () {
