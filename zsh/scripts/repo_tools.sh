@@ -59,14 +59,12 @@ repo_dirty_details () {
     "
 }
 
-repo_branches () {
+_repo_branches () {
     # List git branches of all git repos under given directory
-    # args: directory=~/Documents/projects
-    _repo_list_long $1 \
-    | parallel " \
-        echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
-        cd {}; \
-        git --no-pager branch --all --format '%(refname)' 2>&1 \
+    # args: directory
+    local cwd=`pwd`;
+    cd $1;
+    git --no-pager branch --all --format '%(refname)' 2>&1 \
         | grep -vE 'HEAD|dependabot|warning: ' \
         | sed -E 's/.*\/heads/local/' \
         | sed -E 's/.*\/origin/remote;/' \
@@ -76,11 +74,23 @@ repo_branches () {
         | tr ';' '\n' \
         | sed -E 's/^ +//' \
         | sed -E 's/ .*\//\//' \
-        | awk -F '/' '{printf(\"%-30s ;%-8s %s\n\", \$1, \$2, \$3)}' \
+        | awk -F '/' '{printf("%-30s ;%-8s %s\n", $1, $2, $3)}' \
         | sed -E 's/;remote +$/;         remote/' \
-        | sed 's/;//'; \
-        echo; \
-    ";
+        | sed 's/;//';
+    cd $cwd;
+}
+
+repo_branches () {
+    # List git branches of all git repos under given directory
+    # args: directory=~/Documents/projects
+    _repo_list_long $1 | parallel "\
+        source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+        echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
+        cd {}; \
+        _repo_branches {} \
+        | sed -E 's/$(git branch --show-current)/\\${GREEN}\0\\${CLEAR}/'; \
+        echo \
+    " | parallel 'echo {}';
 }
 
 repo_pull () {
