@@ -122,3 +122,32 @@ lookup () {
     | stdout_buffer \
     | stdout_stripe;
 }
+
+set_logic () {
+    # Apply set logic to a and b
+    # args: a, b, separator, method
+    local sep="$3";
+    if [ "$sep" = "" ]; then
+        sep='newline'
+    fi;
+
+    local method="$4";
+    if [ "$method" = "" ]; then
+        method='symmetric_difference'
+    fi;
+
+    local cmd=$(cat <<EOF
+import sys
+a, b, sep, func = sys.argv[1:5]
+if sep == 'newline':
+    sep = '\n'
+a = set(a.split(sep))
+b = set(b.split(sep))
+diff = getattr(a, func)(b)
+diff = '\n'.join(sorted(list(diff)))
+print(diff)
+EOF
+)
+    python3 -c "$cmd" "$1" "$2" "$sep" "$method" | grep -vE '^$';
+}
+
