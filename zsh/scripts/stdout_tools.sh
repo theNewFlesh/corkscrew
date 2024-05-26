@@ -21,7 +21,7 @@ decolor = sys.argv[2]
 width = int(sys.argv[3])
 buff = ' ' * (width - len(decolor) - 1)
 print(line + buff + '\x1b[0;0m')
-" "$LINE" "$DECOLOR" $WIDTH 
+" "$LINE" "$DECOLOR" $WIDTH
     done;
 }
 
