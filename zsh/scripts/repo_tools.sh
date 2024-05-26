@@ -74,7 +74,7 @@ _repo_branches () {
         | tr ';' '\n' \
         | sed -E 's/^ +//' \
         | sed -E 's/ .*\//\//' \
-        | awk -F '/' '{printf("%-30s ;%-8s %s\n", $1, $2, $3)}' \
+        | awk -F '/' '{printf("%-40s ;%-8s %s\n", $1, $2, $3)}' \
         | sed -E 's/;remote +$/;         remote/' \
         | sed 's/;//';
     cd $cwd;
