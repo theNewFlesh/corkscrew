@@ -35,10 +35,10 @@ Corkscrew is library of various zsh functions and other command line tools
 oriented towards MacOS and Ubuntu power users.
 
 Corkscrew depends on zsh, oh-my-zsh, zsh plugins and other unix CLI tools.
-Install whatever you like, just know that some tools will expect certain
-things you do not have. It is highly recommended you look over the code before
-installation, as you may wish to comment out certain parts according to your
-taste.
+Install whatever you like, just know that some tools will expect certain things
+you do not have. The packages section lists everything that you may wish to
+install. It is highly recommended you look over the code before installation,
+as you may wish to comment out certain parts according to your taste.
 
 # Installation
 1. Install oh-my-zsh
@@ -73,6 +73,8 @@ taste.
 
 ## Packages
   - batcat
+  - bettersnap
+  - brave
   - cruft
   - docker
   - dockviz
@@ -80,15 +82,20 @@ taste.
   - ffmpeg
   - git
   - gnome-shell
+  - iterm2
+  - jq
   - kubectl
   - oh-my-zsh
   - parallel
   - pylint
   - ripgrep
   - rsync
+  - spd-say
   - telnet
+  - vlc
   - vscode
   - xsel
+  - yq
 
 ## ZSH Plugins
   - aws
