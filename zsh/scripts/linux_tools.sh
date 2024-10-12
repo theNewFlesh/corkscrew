@@ -1,3 +1,5 @@
+# requires: batcat, gnome-shell, spd-say, telnet, vscode, xsel
+
 if [[ `uname` == "Linux" ]]; then
     bindkey '^[[1;3C' forward-word       # alt-right
     bindkey '^[[1;3D' backward-word      # alt-left

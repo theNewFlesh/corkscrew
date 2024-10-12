@@ -1,3 +1,5 @@
+# requires: parallel
+
 f () {
     # Echo each item then apply given command to it
     # args: command with '{}'' in it

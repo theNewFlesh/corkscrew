@@ -1,3 +1,5 @@
+# requires: parallel
+
 ls_alias () {
     # List all custom aliases
     cat $ZSH/custom/scripts/aliases.sh \

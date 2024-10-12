@@ -1,3 +1,5 @@
+# requires: bettersnaptool, brave, iterm2, vlc, vscode
+
 if [[ `uname` == "Darwin" ]]; then
     bindkey '^P' kill-line
 

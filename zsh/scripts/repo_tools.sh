@@ -1,3 +1,5 @@
+# requires: cruft, git, parallel
+
 _repo_list_long () {
     # List all git repo fullpaths under a given directory
     # args: directory=~/Documents/projects

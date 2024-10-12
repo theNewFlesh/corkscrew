@@ -75,6 +75,7 @@ as you may wish to comment out certain parts according to your taste.
   - batcat
   - bettersnap
   - brave
+  - cookiecutter
   - cruft
   - docker
   - dockviz

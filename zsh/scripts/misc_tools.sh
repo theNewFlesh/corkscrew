@@ -1,3 +1,5 @@
+# requires: ffmpeg, jq, parallel
+
 chmod_it () {
     # Chmod given item
     # args: user, group, other, item

@@ -1,3 +1,5 @@
+# requires: docker, dockviz, exa, git, parallel, pylint
+
 # generic tools
 #alias activate="source activate"
 #alias deactivate="source deactivate"

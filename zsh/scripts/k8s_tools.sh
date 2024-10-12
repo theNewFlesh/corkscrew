@@ -1,8 +1,11 @@
+# requires: kubectl, parallel, yq
+
 _k8s_get_context () {
     # Get kubectl context command string
     # args: context
     local context="";
     if [ "$1" ]; then
+    
         local context=$1;
     else
         local context=`kubectl config get-contexts --output name`;

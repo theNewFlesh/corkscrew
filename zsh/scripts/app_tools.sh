@@ -1,3 +1,5 @@
+# requires: docker, parallel, vscode
+
 app_list () {
     # List all datalus style repos in a given directory
     # args: directory='~/Documents/projects'
