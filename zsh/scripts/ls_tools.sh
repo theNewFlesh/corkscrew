@@ -14,8 +14,8 @@ ls_cmd () {
     find $ZSH/custom/scripts -type f \
         | grep tools \
         | parallel "cat {} \
-            | grep -E '\(\) \{' -A 2 \
-            | grep -E '\(\)|#' \
+            | grep -E '^[a-z_].* \(\) \{' -A 2 \\
+            | grep -E '^[a-z_].* \(\)|#' \
             | sed -E 's/(.*) \(\) \{/@\1/'" \
         | tr '\n' ' ' \
         | tr '@' '\n' \
