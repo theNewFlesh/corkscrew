@@ -4,6 +4,8 @@ if [[ `uname` == "Darwin" ]]; then
     bindkey '^P' kill-line
 
     bettersnap () {
+        # Configure bettersnap settings
+        # args: [keyboard or numpad]
         defaults import com.hegenberg.BetterSnapTool ~/Documents/misc/bettersnaptool/$1.plist; \
         killproc bettersnap; \
         open /Applications/BetterSnapTool.app; \

@@ -1,5 +1,3 @@
-# requires: cruft, git, parallel
-
 _repo_list_long () {
     # List all git repo fullpaths under a given directory
     # args: directory=~/Documents/projects
@@ -65,31 +63,46 @@ _repo_branches () {
     # List git branches of all git repos under given directory
     # args: directory
     local cwd=`pwd`;
-    cd $1;
-    git --no-pager branch --all --format '%(refname)' 2>&1 \
-        | grep -vE 'HEAD|dependabot|warning: ' \
-        | sed -E 's/.*\/heads/local/' \
-        | sed -E 's/.*\/origin/remote;/' \
-        | sed -E 's/(.*)\/(.*)/\2\/\1/' \
-        | sort \
-        | tr '\n' ' ' \
-        | tr ';' '\n' \
-        | sed -E 's/^ +//' \
-        | sed -E 's/ .*\//\//' \
-        | awk -F '/' '{printf("%-40s ;%-8s %s\n", $1, $2, $3)}' \
-        | sed -E 's/;remote +$/;         remote/' \
-        | sed 's/;//';
+
+    source ~/.oh-my-zsh/custom/scripts/misc_tools.sh;
+
+    local target=$cwd;
+    if [ "$1" ]; then target=$1; fi;
+    local repos=`_repo_list_long $target`;
+    fmt () { awk -F ';' '{printf("%-40s %-5s %s\n", $1, $2, $3)}' };
+
+    for repo in $repos; do
+        cd $repo;
+
+        local branches=`\
+            git --no-pager branch --all --format '%(refname)' 2>&1 \
+            | grep -vE 'HEAD|dependabot|warning: '\
+        `;
+        local lb=`echo "$branches" \
+            | grep -v '/remotes/' | sed -E 's/.*heads\///' | tr '\n' ','`;
+        local rb=`echo "$branches" \
+            | grep '/remotes/' | sed -E 's/.*origin\///' | tr '\n' ','`;
+
+        set_logic "$lb" "$rb" ',' difference \
+            | parallel "echo '{};local;'" | fmt;
+        set_logic "$rb" "$lb" ',' difference \
+            | parallel "echo '{};;remote'" | fmt;
+        set_logic "$lb" "$rb" ',' intersection \
+            | parallel "echo '{};local;remote'" | fmt;
+    done;
+
     cd $cwd;
 }
 
 repo_branches () {
     # List git branches of all git repos under given directory
-    # args: directory=~/Documents/projects
-    _repo_list_long $1 | parallel "\
+    # args: regex
+    local regex='.*';
+    if [ "$1" ]; then regex=$1; fi;
+    _repo_list_long | parallel "\
         source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
         echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
-        cd {}; \
-        _repo_branches {}; \
+        _repo_branches {} | grep -E \"$regex\"; \
         echo \
     " | parallel 'echo {}';
 }

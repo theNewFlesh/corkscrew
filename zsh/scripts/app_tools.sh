@@ -32,10 +32,11 @@ app_state () {
 app_ports () {
     # List port prefixes of all datalus style repos in a given directory
     app_state \
+        | stdout_decolor \
         | awk '{print $2, $10}' \
         | grep '\-\->' \
         | sed 's/-->.*//' \
-        | sed -E 's/(..)(00|80)/\1/' \
+        | sed -E 's/ (..).*/ \1/' \
         | awk '{print $2, $1}' \
         | sort;
 }
