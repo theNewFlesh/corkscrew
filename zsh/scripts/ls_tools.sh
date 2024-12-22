@@ -11,22 +11,26 @@ ls_alias () {
 
 ls_cmd () {
     # List all custom commands
-    find $ZSH/custom/scripts -type f \
-        | grep tools \
-        | parallel "cat {} \
-            | grep -E '^[a-z_].* \(\) \{' -A 2 \\
-            | grep -E '^[a-z_].* \(\)|#' \
-            | sed -E 's/(.*) \(\) \{/@\1/'" \
-        | tr '\n' ' ' \
-        | tr '@' '\n' \
-        | sed -E 's/^ +//' \
-        | grep -vE '^$' \
+    local cmd=` \
+        find $ZSH/custom/scripts -type f \
+            | grep tools \
+            | parallel "cat {} \
+                | grep -E '^[a-z_].* \(\) \{' -A 2 \\
+                | grep -E '^[a-z_].* \(\)|#' \
+                | sed -E 's/(.*) \(\) \{/@\1/'" \
+            | tr '\n' ' ' \
+            | tr '@' '\n' \
+            | sed -E 's/^ +//' \
+            | grep -vE '^$' \
+    `;
+    local public=`echo "$cmd" | grep -vE '^_' | sort`;
+    local private=`echo "$cmd" | grep -E '^_' | sort`;
+    echo "$private\n$public" \
         | awk \
             -F '#' \
             -v cyan="$CYAN2" -v clear="$CLEAR" \
             '{printf cyan "%-40s" clear "%-90s" "%s\n", $1, $2, $3}' \
-        | sed -E "s/^'|'$//g" \
-        | sort;
+        | sed -E "s/^'|'$//g";
 }
 
 ls_displays () {
