@@ -90,6 +90,23 @@ rm_cache () {
     | parallel 'rm -rf {}';
 }
 
+_slack_it () {
+    # Slack message to given channel
+    # args: url, channel, message
+    local message="$3";
+    if [ "$message" = "" ]; then
+        message=`cat /dev/stdin`
+    fi;	
+    lb slack "$1" "$2" "$message";
+}
+
+slack_it () {
+    # Slack message to given channel
+    # args: channel, message
+    local url=https://hooks.slack.com/services/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;
+    _slack_it $url "$1" "$2";
+}
+
 ssh_add_all () {
     # Ssh-add all files in ~/.ssh
     cd ~/.ssh;
@@ -116,13 +133,32 @@ progress () {
 lookup () {
     # Searches all custom commands and aliases with given regex
     # args: regex
-    (ls_cmd && ls_alias) \
+    local _alias=`ls_alias | awk '{printf("%-40s alias\n", $1)}'`;
+    (ls_cmd && echo "$_alias") \
     | stdout_decolor \
-    | sort \
     | grep -iE "$1" \
     | sed -E "s/'//g" \
     | stdout_buffer \
     | stdout_stripe;
+}
+
+tabulate () {
+    # Format YAML of stdin into table
+    # args: headers (comma separated), table-format=fancy_grid, stdin
+    source activate dev-3.7;
+    local format='fancy_grid';
+    if [ "$2" ]; then
+        local format="$2";
+    fi;
+    python3 -c "
+import sys
+import yaml
+import tabulate as tb
+stdin = yaml.safe_load(sys.argv[1])
+stdout = tb.tabulate(stdin, headers='$1'.split(','), tablefmt='$format')
+print(stdout)
+" "`cat /dev/stdin`" && \
+    conda deactivate;
 }
 
 set_logic () {
@@ -151,5 +187,60 @@ print(diff)
 EOF
 )
     python3 -c "$cmd" "$1" "$2" "$sep" "$method" | grep -vE '^$';
+}
+
+missing_funcs () {
+    # Find difference between dev, corkscrew, oh-my-zsh defined funcs
+    local zsh='~/.oh-my-zsh/custom/scripts';
+    local dev='~/Documents/projects/dev/ansible/files/zsh/scripts';
+    local cork='~/Documents/projects/corkscrew/zsh/scripts';
+
+    local cmd="rg '\(\)' | grep '\(\)' | sed 's/.*://' | sed 's/ .*//' | sort | tr '\n' ','";
+    local zsh=`eval "cd $zsh; $cmd"`;
+    local dev=`eval "cd $dev; $cmd"`;
+    local cork=`eval "cd $cork; $cmd"`;
+
+    local tmp=`set_logic $dev $zsh ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN DEV NOT IN OH-MY-ZSH${CLEAR}\n$tmp";
+    fi;
+
+    local tmp=`set_logic $zsh $dev ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN OH-MY-ZSH NOT IN DEV${CLEAR}\n$tmp";
+    fi;
+
+    local tmp=`set_logic $dev $cork ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN DEV NOT IN CORKSCREW${CLEAR}\n$tmp";
+    fi;
+
+    local tmp=`set_logic $cork $dev ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN CORKSCREW NOT IN DEV${CLEAR}\n$tmp";
+    fi;
+
+    local tmp=`set_logic $cork $zsh ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN CORKSCREW NOT IN OH-MY-ZSH${CLEAR}\n$tmp";
+    fi;
+
+    local tmp=`set_logic $zsh $cork ',' difference | sort | grep -vE '^$'`;
+    if [ "$tmp" != "" ]; then
+        echo "\n${CYAN2}IN OH-MY-ZSH NOT IN CORKSCREW${CLEAR}\n$tmp";
+    fi;
+}
+
+flat_json () {
+    # Converts json input into flattened json
+    # args: JSON text
+    local json="$1";
+    if [ "$json" = "" ]; then
+        json=`cat /dev/stdin`
+    fi;	
+    echo "$json" \
+    | jq -r 'paths(scalars) as $p | "\($p | join(".")): \(getpath($p))"' \
+    | yq --output-format json \
+    | jq -c;
 }
 
