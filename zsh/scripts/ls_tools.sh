@@ -16,7 +16,7 @@ ls_cmd () {
             | grep tools \
             | parallel "cat {} \
                 | grep -E '^[a-z_].* \(\) \{' -A 2 \\
-                | grep -E '^[a-z_].* \(\)|#' \
+                | grep -E '^[a-z_].* \(\)|^ +#' \
                 | sed -E 's/(.*) \(\) \{/@\1/'" \
             | tr '\n' ' ' \
             | tr '@' '\n' \
