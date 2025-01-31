@@ -24,11 +24,12 @@
              alt="alexgbraun" width="30px" height="30px"
         >
     </a>
+    <a href="https://github.com/theNewFlesh/corkscrew/blob/master/LICENSE" rel="nofollow noreferrer">
+        <img src="https://img.shields.io/badge/License-MIT-F77E70?style=for-the-badge" style="padding-left: 10px">
+    </a>
 </p>
 
 <p><img src="logo.png"width="666px" height="360px"></p>
-
-[![](https://img.shields.io/badge/License-MIT-F77E70?style=for-the-badge)](https://github.com/theNewFlesh/corkscrew/blob/master/LICENSE)
 
 # Introduction
 Corkscrew is library of various zsh functions and other command line tools
