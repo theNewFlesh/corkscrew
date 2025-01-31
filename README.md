@@ -26,11 +26,9 @@
     </a>
 </p>
 
-<!-- <img id="logo" src="resources/logo.png" style="max-width: 717px"> -->
+<p><img src="logo.png"width="666px" height="360px"></p>
 
 [![](https://img.shields.io/badge/License-MIT-F77E70?style=for-the-badge)](https://github.com/theNewFlesh/corkscrew/blob/master/LICENSE)
-
-<p><img src="logo.png"width="666px" height="360px"></p>
 
 # Introduction
 Corkscrew is library of various zsh functions and other command line tools
