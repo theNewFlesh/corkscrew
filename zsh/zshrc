@@ -1,13 +1,15 @@
 # ZSH---------------------------------------------------------------------------
 export ZSH=~/.oh-my-zsh
 
-COMPLETION_WAITING_DOTS="true"
-DISABLE_AUTO_UPDATE="true"
-ENABLE_CORRECTION="true"
-ZSH_THEME="henanigans"
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5D5D7A"
-ZSH_CACHE_DIR="$HOME/.zsh_cache"
-ZSH_COMPDUMP=$ZSH_CACHE_DIR/.zcompdump-$HOST
+export COMPLETION_WAITING_DOTS="true"
+export DISABLE_AUTO_UPDATE="true"
+export ENABLE_CORRECTION="true"
+export ZSH_THEME="henanigans"
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5D5D7A"
+export ZSH_CACHE_DIR="$HOME/.zsh_cache"
+export ZSH_COMPDUMP=$ZSH_CACHE_DIR/.zcompdump-$HOST
+export ZSH_SCRIPTS="$ZSH/custom/scripts"
+export ZSH_COMPLETIONS="$ZSH/custom/completions"
 mkdir -p $ZSH_CACHE_DIR
 
 fpath=(~/.oh-my-zsh/custom/completions $fpath)

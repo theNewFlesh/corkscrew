@@ -2,10 +2,10 @@
 
 app_list () {
     # List all datalus style repos in a given directory
-    # args: directory='~/Documents/projects'
+    # args: directory=$PROJECTS_DIR
     local cwd=`pwd`;
-    export projects=~/Documents/projects;
-    if [ "$1" ]; then export projects=$1; fi;
+    local projects=$PROJECTS_DIR;
+    if [ "$1" ]; then projects=$1; fi;
     cd $projects;
     repo_list $projects \
         | sed 's/.*\///' \
@@ -18,9 +18,9 @@ app_list () {
 
 app_state () {
     # Shows the state of all datalus style repos in a given directory
-    # args: directory='~/Documents/projects'
-    export projects=~/Documents/projects;
-    if [ "$1" ]; then export projects=$1; fi;
+    # args: directory=$PROJECTS_DIR
+    local projects=$PROJECTS_DIR;
+    if [ "$1" ]; then projects=$1; fi;
     app_list $projects \
         | parallel "cd $projects/{}; bin/{} state 2>&1 | grep -E app" \
         | sort \
@@ -50,9 +50,9 @@ app_ps () {
 
 app_top () {
     # Run docker top against all datalus repos in a given directory
-    # args: directory='~/Documents/projects'
-    export projects=~/Documents/projects;
-    if [ "$1" ]; then export projects=$1; fi;
+    # args: directory=$PROJECTS_DIR
+    local projects=$PROJECTS_DIR;
+    if [ "$1" ]; then projects=$1; fi;
     app_list $projects \
         | parallel "cd $projects; find {} -type f | grep 'bin/{}$'" \
         | sed 's/\/.*//' \

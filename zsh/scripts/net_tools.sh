@@ -1,5 +1,5 @@
 net_delete_known_host () {
-    # Delete problematic host from ~/.known_hosts
+    # Delete problematic host from ~/.ssh/known_hosts
     # args: host
     local line=$(ssh $1 2>&1 | grep Offending | sed -E 's/.*:(.*)/\1\td/' | tr -d '[:space:]');
     sed -i -e $line ~/.ssh/known_hosts;

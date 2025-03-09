@@ -1,8 +1,9 @@
+source $ZSH_SCRIPTS/variables.sh
+
 _repo_list_long () {
     # List all git repo fullpaths under a given directory
-    # args: directory=~/Documents/projects
-    local home=`echo ~`;
-    local projects="$home/Documents/projects";
+    # args: directory=$PROJECTS_DIR
+    local projects="$PROJECTS_DIR";
     if [ "$1" ]; then local projects=$1; fi;
     find $projects -maxdepth 2 \
         | grep -E '\.git$' \
@@ -12,13 +13,13 @@ _repo_list_long () {
 
 repo_list () {
     # List all git repos under a given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     _repo_list_long $1 | sed -E 's/.*\///' | sort;
 }
 
 _repo_status_long () {
     # List git status of all git repos (fullpaths) under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     _repo_list_long $1 \
         | parallel "echo '{}XXXXX'; cd {}; git status -s; echo ' EOF'" \
         | tr '\n' ' ' \
@@ -39,13 +40,13 @@ _repo_status_long () {
 
 repo_status () {
     # List git status of all git repos under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     _repo_status_long $1 | sed 's/\/.*\///';
 }
 
 repo_dirty_details () {
     # List only dirty git repos under a given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     _repo_status_long $1 | grep dirty | awk '{print $2}' \
         | f "cd {}; git status --porcelain \
         | sed 's/.M /modified /' \
@@ -64,7 +65,7 @@ _repo_branches () {
     # args: directory
     local cwd=`pwd`;
 
-    source ~/.oh-my-zsh/custom/scripts/misc_tools.sh;
+    source $ZSH_SCRIPTS/misc_tools.sh;
 
     local target=$cwd;
     if [ "$1" ]; then target=$1; fi;
@@ -100,7 +101,7 @@ repo_branches () {
     local regex='.*';
     if [ "$1" ]; then regex=$1; fi;
     _repo_list_long | parallel "\
-        source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+        source $ZSH_SCRIPTS/repo_tools.sh; \
         echo -n '${CYAN}'; echo -n {} | sed 's/.*\///'; echo '${CLEAR}'; \
         _repo_branches {} | grep -E \"$regex\"; \
         echo \
@@ -109,7 +110,7 @@ repo_branches () {
 
 repo_pull () {
     # Git pull all clean repos under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     local pwd=`pwd`; \
     _repo_status_long $1 \
         | grep clean \
@@ -125,7 +126,7 @@ repo_pull () {
 
 repo_prune () {
     # Git remote prune origin all repos under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     local pwd=`pwd`; \
     _repo_status_long $1 \
         | grep clean \
@@ -141,7 +142,7 @@ repo_prune () {
 
 _repo_versions () {
     # List all git version tags of all git repos (fullpath) under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     local pwd=`pwd`;
     cd $1;
     git --no-pager log \
@@ -153,14 +154,14 @@ _repo_versions () {
 
 repo_versions () {
     # List all git version tags of all git repos under given directory
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     if [ "$1" ]; then
         _repo_versions $1;
     else
         local home=`echo ~`;
         local projects="$home/Documents/projects";
         repo_list | f "\
-            source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+            source $ZSH_SCRIPTS/repo_tools.sh; \
             _repo_versions $projects/{} \
         "
     fi;
@@ -251,12 +252,12 @@ repo_version () {
 
 _repo_state () {
     # List git statu of all git repos (fullpath) under given directory in simple table
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     local pwd=`pwd`;
     cd $1;
     local REPO=`echo $1 | sed -E 's/.*\///'`;
     local VERSION=`
-        source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; \
+        source $ZSH_SCRIPTS/repo_tools.sh; \
         repo_version . \
     `;
     local BRANCH=`git branch --show-current`;
@@ -277,9 +278,9 @@ _repo_state () {
 
 repo_state () {
     # List git statu of all git repos under given directory in simple table
-    # args: directory=~/Documents/projects
+    # args: directory=$PROJECTS_DIR
     _repo_list_long $1 | parallel \
-        "source ~/.oh-my-zsh/custom/scripts/repo_tools.sh; _repo_state {}" \
+        "source $ZSH_SCRIPTS/repo_tools.sh; _repo_state {}" \
     | sort \
     | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}';
 }

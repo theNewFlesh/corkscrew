@@ -1,4 +1,8 @@
 # requires: ffmpeg, jq, parallel
+source $ZSH_SCRIPTS/variables.sh
+source $ZSH_SCRIPTS/f_tools.sh
+source $ZSH_SCRIPTS/app_tools.sh
+source $ZSH_SCRIPTS/stdout_tools.sh
 
 chmod_it () {
     # Chmod given item
@@ -38,7 +42,7 @@ get_noncomments () {
 
 kill_proc () {
     # Kill processes that match given grep pattern
-    # args: pattern 
+    # args: pattern
     ls_proc $1 --pid | xargs sudo kill -9;
 }
 
@@ -96,15 +100,14 @@ _slack_it () {
     local message="$3";
     if [ "$message" = "" ]; then
         message=`cat /dev/stdin`
-    fi;	
+    fi;
     lb slack "$1" "$2" "$message";
 }
 
 slack_it () {
     # Slack message to given channel
     # args: channel, message
-    local url=https://hooks.slack.com/services/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;
-    _slack_it $url "$1" "$2";
+    _slack_it $SLACK_URL "$1" "$2";
 }
 
 ssh_add_all () {
@@ -191,9 +194,9 @@ EOF
 
 missing_funcs () {
     # Find difference between dev, corkscrew, oh-my-zsh defined funcs
-    local zsh='~/.oh-my-zsh/custom/scripts';
-    local dev='~/Documents/projects/dev/ansible/files/zsh/scripts';
-    local cork='~/Documents/projects/corkscrew/zsh/scripts';
+    local zsh="$ZSH_SCRIPTS";
+    local dev="$PROJECTS_DIR/dev/ansible/files/zsh/scripts";
+    local cork="$PROJECTS_DIR/corkscrew/zsh/scripts";
 
     local cmd="rg '\(\)' | grep '\(\)' | sed 's/.*://' | sed 's/ .*//' | sort | tr '\n' ','";
     local zsh=`eval "cd $zsh; $cmd"`;
@@ -237,10 +240,53 @@ flat_json () {
     local json="$1";
     if [ "$json" = "" ]; then
         json=`cat /dev/stdin`
-    fi;	
+    fi;
     echo "$json" \
     | jq -r 'paths(scalars) as $p | "\($p | join(".")): \(getpath($p))"' \
     | yq --output-format json \
     | jq -c;
 }
 
+git_merge_prod () {
+    # Merge prod into master for a given repo
+    local branch='master';
+    local found=` \
+        git --no-pager branch --all --no-color \
+        | sed -E 's/\* /  /g' \
+        | grep -v remotes \
+        | grep main;
+    `;
+    if [ "$found" != "" ]; then
+        branch='main';
+    fi;
+    git checkout $branch;
+    git pull;
+    git checkout prod;
+    git pull;
+    git checkout $branch;
+    git merge prod --strategy ours --no-edit;
+    git push;
+}
+
+cruft_state () {
+    # Display table of all local gl repos and their cruft git hash
+    cd $PROJECTS_DIR;
+    app_list \
+    | f_find cruft.json \
+    | sed -E 's/\/.*//' \
+    | f_line "cat {}/.cruft.json | grep commit | sed -E 's/.* \"|\",//g'" \
+    | parallel \
+        "echo '%{}' \
+        | sed -E 's/(.*) (.*)/echo \1; \
+        cd ~\/Documents\/projects\/cookiecutter-datalus; \
+        git log \| grep \2 -A 5 \| grep -v Author/'" \
+    | sed 's/\\//g' \
+    | parallel \
+    | tr '\n' ' ' \
+    | tr '%' '\n' \
+    | sed 's/ commit/%/' \
+    | awk -F '%' '{printf("%-40s %s\n", $1, $2)}' \
+    | sed 's/ Date: //' \
+    | stdout_buffer \
+    | stdout_stripe;
+}
