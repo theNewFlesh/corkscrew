@@ -1,4 +1,5 @@
-# requires: parallel
+# requires: docker, parallel
+source $ZSH_SCRIPTS/colors.sh
 
 ls_alias () {
     # List all custom aliases
@@ -36,6 +37,45 @@ ls_cmd () {
 ls_displays () {
     # List all displays
     w -hs | awk '{print $3}' | sort -u;
+}
+
+ls_docker_containers () {
+    # List all docker containers in a nicely formatted table
+    local header=`
+        echo "${GREEN2}NAME|STATE|STATUS|CREATED|ID${CLEAR}" \
+        | awk -F '|' '{printf("%-35s%-12s%-30s%-35s%s\n", $1, $2, $3, $4, $5)}'
+    `;
+    local body=`docker ps \
+        --all \
+        --format '{{.Names}}|{{.State}}|{{.Status}}|{{.CreatedAt}}|{{.ID}}' \
+        | awk -F '|' '{printf("%-28s%-12s%-30s%-35s%s\n", $1, $2, $3, $4, $5)}' \
+        | sort
+    `;
+    echo "$header\n$body" | stdout_buffer | stdout_stripe;
+}
+
+ls_docker_images () {
+    # List all docker images in a nicely formatted table
+    local header=`
+        echo "${GREEN2}REPOSITORY|TAG|SIZE|CREATED|ID${CLEAR}" \
+        | awk -F '|' '{printf("%-47s%-20s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
+    `;
+    local body=`docker images \
+        --format '{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}|{{.ID}}' \
+        | sort \
+        | grep -v none \
+        | sed -E 's/(vsc-[^;]+)-[^;]+-uid/\1/' \
+        | awk -F '|' '{printf("%-40s%-20s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
+    `;
+    echo "$header\n$body" | stdout_buffer | stdout_stripe;
+}
+
+ls_docker () {
+    # List all docker entities in a nicely formatted table
+    echo "${CYAN2}CONTAINERS${CLEAR}";
+    ls_docker_containers;
+    echo "\n${CYAN2}IMAGES${CLEAR}";
+    ls_docker_images;
 }
 
 ls_fileperms () {
