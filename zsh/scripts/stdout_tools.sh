@@ -46,8 +46,8 @@ import sys
 import re
 for i, line in enumerate(sys.argv[1].split('\n')):
     if i % 2 != 0:
-        line = re.sub('\[0;', '[40;', line)
-        line = re.sub('\[0m', '[40m', line)
+        line = re.sub(r'\[0;', '[40;', line)
+        line = re.sub(r'\[0m', '[40m', line)
         line = '\x1b[40;40m' + line + '\x1b[0;0m'
     print(line)
 \"";
