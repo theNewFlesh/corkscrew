@@ -148,12 +148,11 @@ lookup () {
 tabulate () {
     # Format YAML of stdin into table
     # args: headers (comma separated), table-format=fancy_grid, stdin
-    source activate dev-3.7;
     local format='fancy_grid';
     if [ "$2" ]; then
         local format="$2";
     fi;
-    python3 -c "
+    python3.11 -c "
 import sys
 import yaml
 import tabulate as tb
@@ -161,7 +160,6 @@ stdin = yaml.safe_load(sys.argv[1])
 stdout = tb.tabulate(stdin, headers='$1'.split(','), tablefmt='$format')
 print(stdout)
 " "`cat /dev/stdin`" && \
-    conda deactivate;
 }
 
 set_logic () {

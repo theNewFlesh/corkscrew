@@ -41,23 +41,21 @@ ls_displays () {
 
 ls_docker_containers () {
     # List all docker containers in a nicely formatted table
-    local header=`
-        echo "${GREEN2}NAME|STATE|STATUS|CREATED|ID${CLEAR}" \
+    echo "${CYAN2}NAME|STATE|STATUS|CREATED|ID${CLEAR}" \
         | awk -F '|' '{printf("%-35s%-12s%-30s%-35s%s\n", $1, $2, $3, $4, $5)}'
-    `;
-    local body=`docker ps \
+    docker ps \
         --all \
         --format '{{.Names}}|{{.State}}|{{.Status}}|{{.CreatedAt}}|{{.ID}}' \
         | awk -F '|' '{printf("%-28s%-12s%-30s%-35s%s\n", $1, $2, $3, $4, $5)}' \
-        | sort
-    `;
-    echo "$header\n$body" | stdout_buffer | stdout_stripe;
+        | sed -E $'s/running/\e[92mrunning\e[0m/' \
+        | sed -E $'s/exited/\e[31mexited\e[0m/' \
+        | sort;
 }
 
 ls_docker_images () {
     # List all docker images in a nicely formatted table
     local header=`
-        echo "${GREEN2}REPOSITORY|TAG|SIZE|CREATED|ID${CLEAR}" \
+        echo "${CYAN2}REPOSITORY|TAG|SIZE|CREATED|ID${CLEAR}" \
         | awk -F '|' '{printf("%-47s%-20s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
     `;
     local body=`docker images \
@@ -72,9 +70,9 @@ ls_docker_images () {
 
 ls_docker () {
     # List all docker entities in a nicely formatted table
-    echo "${CYAN2}CONTAINERS${CLEAR}";
+    echo "${PURPLE2}CONTAINERS${CLEAR}";
     ls_docker_containers;
-    echo "\n${CYAN2}IMAGES${CLEAR}";
+    echo "\n${YELLOW2}IMAGES${CLEAR}";
     ls_docker_images;
 }
 

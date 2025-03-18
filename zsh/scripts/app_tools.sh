@@ -31,6 +31,16 @@ app_state () {
 
 app_ports () {
     # List port prefixes of all datalus style repos in a given directory
+    local active=`
+        netstat \
+        | awk '{print $4}' \
+        | grep -E 'localhost:....$' \
+        | sed -E 's/.*:(..)../\1/' \
+        | sort \
+        | uniq \
+        | tr '\n' '|' \
+        | sed 's/|$//'
+    `;
     app_state \
         | stdout_decolor \
         | awk '{print $2, $10}' \
@@ -38,7 +48,9 @@ app_ports () {
         | sed 's/-->.*//' \
         | sed -E 's/ (..).*/ \1/' \
         | awk '{print $2, $1}' \
-        | sort;
+        | sort \
+        | sed -E "s/($active)/;\1/" \
+        | sed -E $'s/;(.*)/\e[92m\\1\e[0m/';
 }
 
 app_ps () {
