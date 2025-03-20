@@ -87,6 +87,7 @@ as you may wish to comment out certain parts according to your taste.
   - iterm2
   - jq
   - kubectl
+  - nvidia-smi
   - oh-my-zsh
   - parallel
   - pylint
