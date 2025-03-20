@@ -1,5 +1,8 @@
-# requires: docker, nvidia-smi, parallel
+# requires: cruft, docker, nvidia-smi, parallel
+source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/colors.sh
+source $ZSH_SCRIPTS/app_tools.sh
+source $ZSH_SCRIPTS/f_tools.sh
 source $ZSH_SCRIPTS/stdout_tools.sh
 
 ls_alias () {
@@ -33,6 +36,34 @@ ls_cmd () {
             -v cyan="$CYAN2" -v clear="$CLEAR" \
             '{printf cyan "%-40s" clear "%-90s" "%s\n", $1, $2, $3}' \
         | sed -E "s/^'|'$//g";
+}
+
+ls_cruft () {
+    # Display table of all local repos and their cruft git hash
+    cd $PROJECTS_DIR;
+    echo "${CYAN2}REPO CRUFT-HASH DATE COMMIT${CLEAR}" \
+        | awk '{printf("%-49s%-42s%-35s%s\n", $1, $2, $3, $4)}';
+    app_list \
+        | f_find cruft.json \
+        | sed -E 's/\/.*//' \
+        | f_line "cat {}/.cruft.json | grep commit | sed -E 's/.* \"|\",//g'" \
+        | parallel \
+            "echo '%{}' \
+            | sed -E 's/(.*) (.*)/echo \1; \
+            cd ~\/Documents\/projects\/cookiecutter-datalus; \
+            git log \| grep \2 -A 5 \| grep -v Author/'" \
+        | sed 's/\\//g' \
+        | parallel \
+        | tr '\n' ' ' \
+        | tr '%' '\n' \
+        | grep -vE '^$' \
+        | sed 's/ commit/%/' \
+        | awk -F '%' '{printf("%-40s %s\n", $1, $2)}' \
+        | sed 's/ Date: //' \
+        | sed -E 's/  +/;/g' \
+        | awk -F ';' '{printf("%-42s%-42s%-35s%s\n", $1, $2, $3, $4)}' \
+        | stdout_buffer \
+        | stdout_stripe invert;
 }
 
 ls_displays () {

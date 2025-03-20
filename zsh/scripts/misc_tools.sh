@@ -1,7 +1,6 @@
 # requires: ffmpeg, jq, parallel
 source $ZSH_SCRIPTS/variables.sh
-source $ZSH_SCRIPTS/f_tools.sh
-source $ZSH_SCRIPTS/app_tools.sh
+source $ZSH_SCRIPTS/ls_tools.sh
 source $ZSH_SCRIPTS/stdout_tools.sh
 
 chmod_it () {
@@ -264,27 +263,4 @@ git_merge_prod () {
     git checkout $branch;
     git merge prod --strategy ours --no-edit;
     git push;
-}
-
-cruft_state () {
-    # Display table of all local gl repos and their cruft git hash
-    cd $PROJECTS_DIR;
-    app_list \
-    | f_find cruft.json \
-    | sed -E 's/\/.*//' \
-    | f_line "cat {}/.cruft.json | grep commit | sed -E 's/.* \"|\",//g'" \
-    | parallel \
-        "echo '%{}' \
-        | sed -E 's/(.*) (.*)/echo \1; \
-        cd ~\/Documents\/projects\/cookiecutter-datalus; \
-        git log \| grep \2 -A 5 \| grep -v Author/'" \
-    | sed 's/\\//g' \
-    | parallel \
-    | tr '\n' ' ' \
-    | tr '%' '\n' \
-    | sed 's/ commit/%/' \
-    | awk -F '%' '{printf("%-40s %s\n", $1, $2)}' \
-    | sed 's/ Date: //' \
-    | stdout_buffer \
-    | stdout_stripe;
 }
