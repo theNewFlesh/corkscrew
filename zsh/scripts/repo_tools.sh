@@ -168,7 +168,7 @@ repo_versions () {
 }
 
 repo_version () {
-    # intelligently find version from given repo
+    # Intelligently find version from given repo
     # args: directory=cwd
     local cwd='.';
     if [ "$1" ]; then local cwd=$1; fi;
