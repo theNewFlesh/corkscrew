@@ -1,4 +1,4 @@
-# requires: docker, parallel
+# requires: docker, nvidia-smi, parallel
 source $ZSH_SCRIPTS/colors.sh
 
 ls_alias () {
@@ -110,6 +110,30 @@ ls_net () {
         " \
         | awk -F '>' '{printf("%-20s %-20s %s\n", $1, $3, $2)}' \
         | sort;
+}
+
+ls_nvidia () {
+    # List nvidia processes
+    echo "${CYAN2}GPU USAGE   PID       PROCESS${CLEAR}";
+    nvidia-smi \
+        | grep 'GPU Memory' -A 1000 \
+        | grep '|=' -A 1000 \
+        | grep '| ' \
+        | sed -E 's/^.* ([0-9]+) .* ([0-9]+MiB).*/\1 \2/' \
+        | awk ' \
+            {printf("echo -n \"%s %s\"; \
+            ps aux \
+            | grep %s \
+            | grep -v grep \
+            | sed -E \"s/^.* [0-9]+:[0-9]+ / /\"\n", $1, $2, $1)}' \
+        | parallel \
+        | awk '{print $1, $2, $3}' \
+        | grep MiB \
+        | awk '{printf("%8s   %-10s%s\n", $2, $1, $3)}' \
+        | sed -E 's/^  /00/' \
+        | sort \
+        | sed -E 's/^00/  /' \
+        | sed -E 's/^/ /';
 }
 
 ls_proc () {
