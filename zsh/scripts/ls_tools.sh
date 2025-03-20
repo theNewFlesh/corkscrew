@@ -1,5 +1,6 @@
 # requires: docker, nvidia-smi, parallel
 source $ZSH_SCRIPTS/colors.sh
+source $ZSH_SCRIPTS/stdout_tools.sh
 
 ls_alias () {
     # List all custom aliases
@@ -129,11 +130,13 @@ ls_nvidia () {
         | parallel \
         | awk '{print $1, $2, $3}' \
         | grep MiB \
-        | awk '{printf("%8s   %-10s%s\n", $2, $1, $3)}' \
+        | awk '{printf("%9s   %-10s%s\n", $2, $1, $3)}' \
         | sed -E 's/^  /00/' \
         | sort \
-        | sed -E 's/^00/  /' \
-        | sed -E 's/^/ /';
+        | sed -E 's/^00/;;/' \
+        | stdout_buffer \
+        | stdout_stripe invert \
+        | sed 's/;;/  /';
 }
 
 ls_proc () {
