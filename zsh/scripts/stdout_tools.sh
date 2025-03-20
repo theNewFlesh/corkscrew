@@ -41,11 +41,14 @@ stdout_raw () {
 
 stdout_stripe () {
     # Stripe input background color per line
+    # args: invert
+    local op='!=';
+    if [ "$1" = "invert" ]; then op='=='; fi;
     stdout_apply "python3 -c \"
 import sys
 import re
 for i, line in enumerate(sys.argv[1].split('\n')):
-    if i % 2 != 0:
+    if i % 2 $op 0:
         line = re.sub(r'\[0;', '[40;', line)
         line = re.sub(r'\[0m', '[40m', line)
         line = '\x1b[40;40m' + line + '\x1b[0;0m'
