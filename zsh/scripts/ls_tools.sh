@@ -113,7 +113,14 @@ ls_fileperms () {
     # args: directory=`pwd`
     export cwd=`pwd`;
     if [ "$1" ]; then export cwd=$1; fi;
-    ls -lRA $cwd | grep -E '^-' | awk '{print $1, $3, $4}' | sort | uniq;
+    echo "${CYAN2}PERMISSION  OWNER  GROUP${CLEAR}";
+    ls -lRA $cwd \
+        | grep -E '^-' \
+        | awk '{printf("%s  %s   %s\n", $1, $3, $4)}' \
+        | sort \
+        | uniq \
+        | stdout_buffer \
+        | stdout_stripe invert;
 }
 
 ls_ip () {
