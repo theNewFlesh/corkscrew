@@ -284,27 +284,3 @@ repo_state () {
     | sort \
     | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}';
 }
-
-repo_cruft_update () {
-    # Apply cruft template update to given repository
-    cruft diff --checkout HEAD > /tmp/cruft.diff;
-    git apply /tmp/cruft.diff;
-    rm -f /tmp/cruft.diff;
-    local diff=`git --no-pager diff --name-only | tr '\n' ' '`;
-    local cmd=$(cat <<EOF
-import re
-import json
-with open('.cruft.json') as f:
-    data = json.load(f)
-skip = data['skip']
-skip_re = '|'.join(skip)
-diff = '$diff'.split(' ')
-output = filter(lambda x: re.search(skip_re, x), diff)
-output = ' '.join(list(output))
-print(output)
-EOF
-)
-    echo "\n${CYAN}REMOVING CHANGES FROM${CLEAR}";
-    python3 -c "$cmd" | tr ' ' '\n' | sed -E 's/^/    /';
-    git checkout HEAD -- `python3 -c "$cmd"`;
-}
