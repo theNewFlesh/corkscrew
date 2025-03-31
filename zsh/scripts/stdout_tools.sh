@@ -25,6 +25,20 @@ print(line + buff + '\x1b[0;0m')
     done;
 }
 
+stdout_color () {
+    # Color text that matches a given regex
+    # args: color, regex
+    while read -r data; do
+        local stdin=`/bin/cat -v <<< "$data"`;
+        local found=`echo "$stdin" | grep -E "$2"`;
+        if [ "$found" != "" ]; then
+            echo "$1$stdin${CLEAR}";
+        else
+            echo "$stdin";
+        fi;
+    done;
+}
+
 stdout_decolor () {
     # Remove color codes from input text
     while read -r data; do
