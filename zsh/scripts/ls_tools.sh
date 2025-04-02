@@ -180,8 +180,7 @@ ls_nvidia () {
 
 ls_proc () {
     # List all processes that math given grep pattern
-    # --pid will show process ids
-    # args: pattern, --pid
+    # args: pattern, --pid (shows process ids)
     if [[ $2 == --pid ]]; then
         ps aux | grep -i $1 | grep -v grep | awk '{print $2}';
         return;
