@@ -1,4 +1,5 @@
 # requires: docker, dockviz, exa, git, parallel, pylint
+
 source $ZSH_SCRIPTS/variables.sh
 
 # generic tools

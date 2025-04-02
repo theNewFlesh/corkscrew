@@ -1,3 +1,5 @@
+# requires: python3
+
 stdout_apply () {
     # Evaluate given command and echo cleaned output to stdout
     # args: command
