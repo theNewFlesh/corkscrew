@@ -1,4 +1,5 @@
 # requires: bettersnaptool, brave, iterm2, vlc, vscode
+
 source $ZSH_SCRIPTS/variables.sh
 
 if [[ `uname` == "Darwin" ]]; then

@@ -1,4 +1,5 @@
 # requires: ffmpeg, jq, parallel
+
 source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/ls_tools.sh
 source $ZSH_SCRIPTS/stdout_tools.sh

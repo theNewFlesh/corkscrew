@@ -1,4 +1,5 @@
 # requires: cruft, docker, nvidia-smi, parallel
+
 source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/colors.sh
 source $ZSH_SCRIPTS/app_tools.sh

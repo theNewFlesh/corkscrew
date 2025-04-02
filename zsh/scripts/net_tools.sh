@@ -1,3 +1,5 @@
+# requires: curl, iputils, nmap
+
 net_delete_known_host () {
     # Delete problematic host from ~/.ssh/known_hosts
     # args: host

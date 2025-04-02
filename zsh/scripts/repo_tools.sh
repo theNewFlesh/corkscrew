@@ -1,3 +1,5 @@
+# requires: parallel
+
 source $ZSH_SCRIPTS/variables.sh
 
 _repo_list_long () {
