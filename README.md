@@ -78,19 +78,23 @@ as you may wish to comment out certain parts according to your taste.
   - brave
   - cookiecutter
   - cruft
+  - curl
   - docker
   - dockviz
   - exa
   - ffmpeg
   - git
   - gnome-shell
+  - iputils
   - iterm2
   - jq
   - kubectl
+  - nmap
   - nvidia-smi
   - oh-my-zsh
   - parallel
   - pylint
+  - python3
   - ripgrep
   - rsync
   - spd-say

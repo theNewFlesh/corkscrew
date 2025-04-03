@@ -1,4 +1,4 @@
-# requires: docker, dockviz, exa, git, parallel, pylint
+# requires: docker, dockviz, exa, git, parallel, pylint, rsync
 
 source $ZSH_SCRIPTS/variables.sh
 
