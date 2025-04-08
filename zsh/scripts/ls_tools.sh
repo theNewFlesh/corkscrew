@@ -52,7 +52,7 @@ ls_cruft () {
             "echo '%{}' \
             | sed -E 's/(.*) (.*)/echo \1; \
             cd ~\/Documents\/projects\/cookiecutter-datalus; \
-            git log \| grep \2 -A 5 \| grep -v Author/'" \
+            git log --date iso \| grep \2 -A 5 \| grep -v Author/'" \
         | sed 's/\\//g' \
         | parallel \
         | tr '\n' ' ' \
