@@ -44,7 +44,7 @@ stdout_color () {
 stdout_decolor () {
     # Remove color codes from input text
     while read -r data; do
-        /bin/cat -v <<< "$data" | sed -E 's/\^\[\[(.;.)?.m//g';
+        /bin/cat -v <<< "$data" | sed -E 's/\^\[\[(..?;..?|..?)m//g';
     done;
 }
 
