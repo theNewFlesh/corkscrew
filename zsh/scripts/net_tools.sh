@@ -54,7 +54,7 @@ net_interfaces () {
 net_ips () {
     # List all ips under ip addr
     ip addr \
-        | grep -E '\d+\.\d+\.\d+\.\d+' \
+        | grep -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' \
         | awk '{print $2}' \
         | sed 's/\/.*//' \
         | sort \
