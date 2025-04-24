@@ -62,6 +62,7 @@ as you may wish to comment out certain parts according to your taste.
    ├── app_tools.sh
    ├── colors.sh
    ├── f_tools.sh
+   ├── gl_tools.sh
    ├── k8s_tools.sh
    ├── linux_tools.sh
    ├── ls_tools.sh
@@ -73,6 +74,7 @@ as you may wish to comment out certain parts according to your taste.
 ```
 
 ## Packages
+  - arp
   - batcat
   - bettersnap
   - brave
@@ -84,6 +86,7 @@ as you may wish to comment out certain parts according to your taste.
   - exa
   - ffmpeg
   - git
+  - glab
   - gnome-shell
   - iputils
   - iterm2
