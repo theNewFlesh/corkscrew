@@ -124,34 +124,6 @@ ls_fileperms () {
         | stdout_stripe invert;
 }
 
-ls_ip () {
-    # List all ips under ip addr
-    ip addr \
-        | grep -E '\d+\.\d+\.\d+\.\d+' \
-        | awk '{print $2}' \
-        | sed 's/\/.*//' \
-        | sort \
-        | uniq;
-}
-
-ls_net () {
-    # Ping all arp entries
-    arp -a \
-        | sed -E 's/ at |\? |\(|\).*/ /g' \
-        | sed -E 's/ +/>/g' \
-        | awk -F '>' '{print $2, $1}' \
-        | parallel " \
-            echo -n '{}>' | sed -E 's/ +/>/g'; \
-            ping -c 2 `echo {} \
-            | awk '{print $1}'` 2>&1 \
-            | grep 'packet loss' \
-            | sed -E 's/.*([0-9.]+%)/\\1/g' \
-            | sed -E 's/ +/-/g' \
-        " \
-        | awk -F '>' '{printf("%-20s %-20s %s\n", $1, $3, $2)}' \
-        | sort;
-}
-
 ls_nvidia () {
     # List nvidia processes
     echo "${CYAN2}GPU USAGE   PID       PROCESS${CLEAR}";

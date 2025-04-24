@@ -1,4 +1,4 @@
-# requires: curl, iputils, nmap
+# requires: arp, curl, iputils, nmap, parallel
 
 net_delete_known_host () {
     # Delete problematic host from ~/.ssh/known_hosts
@@ -48,6 +48,34 @@ net_interfaces () {
         | sed -E 's/\}.*inet/ /g' \
         | sed -E 's/\}.*|://g' \
         | awk '{printf("%-25s %-10s %s\n", $1, $2, $3)}' \
+        | sort;
+}
+
+net_ips () {
+    # List all ips under ip addr
+    ip addr \
+        | grep -E '\d+\.\d+\.\d+\.\d+' \
+        | awk '{print $2}' \
+        | sed 's/\/.*//' \
+        | sort \
+        | uniq;
+}
+
+net_ping_all () {
+    # Ping all arp entries
+    arp -a \
+        | sed -E 's/ at |\? |\(|\).*/ /g' \
+        | sed -E 's/ +/>/g' \
+        | awk -F '>' '{print $2, $1}' \
+        | parallel " \
+            echo -n '{}>' | sed -E 's/ +/>/g'; \
+            ping -c 2 `echo {} \
+            | awk '{print $1}'` 2>&1 \
+            | grep 'packet loss' \
+            | sed -E 's/.*([0-9.]+%)/\\1/g' \
+            | sed -E 's/ +/-/g' \
+        " \
+        | awk -F '>' '{printf("%-20s %-20s %s\n", $1, $3, $2)}' \
         | sort;
 }
 
