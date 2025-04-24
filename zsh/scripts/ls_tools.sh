@@ -4,6 +4,7 @@ source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/colors.sh
 source $ZSH_SCRIPTS/app_tools.sh
 source $ZSH_SCRIPTS/f_tools.sh
+source $ZSH_SCRIPTS/repo_tools.sh
 source $ZSH_SCRIPTS/stdout_tools.sh
 
 ls_alias () {
@@ -159,4 +160,31 @@ ls_proc () {
     fi;
     ps aux | grep -i $1 | grep -v grep | awk '{print $11}';
     return;
+}
+
+_ls_github_repos () {
+    # List all personal GitHub source repos
+    curl -s https://github.com/$GITHUB_USER\?tab\=repositories\&q\=\&type\=source\&language\=\&sort\= \
+        | grep 'name codeRepository' -A 1 \
+        | grep -v 'name codeRepository' \
+        | sort \
+        | uniq \
+        | sed -E 's/<.*//' \
+        | sed -E 's/ +//' \
+        | grep -v '\--';
+}
+
+ls_github_repos () {
+    # List all personal GitHub source repos
+    local all_repos=`_ls_github_repos | tr '\n' ',' | sed 's/,$//'`;
+    local local_repos=`repo_list | tr '\n' ',' | sed 's/,$//'`;
+    local remote_repos=`set_logic "$all_repos" "$local_repos" ',' difference`
+
+    echo "${CYAN2}LOCAL REPOS${CLEAR}";
+    set_logic "$local_repos" "$remote_repos" ',' difference \
+        | stdout_buffer \
+        | stdout_stripe invert;
+
+    echo "\n${CYAN2}REMOTE REPOS${CLEAR}";
+    echo "$remote_repos" | stdout_buffer | stdout_stripe invert;
 }
