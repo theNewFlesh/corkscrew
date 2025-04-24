@@ -265,3 +265,9 @@ git_merge_prod () {
     git merge prod --strategy ours --no-edit;
     git push;
 }
+
+ssh_exec () {
+    # SSH to a machine and run a given command
+    # args: machine, command 
+    ssh $1 "/bin/zsh -c 'source ~/.zshrc; $2'";
+}
