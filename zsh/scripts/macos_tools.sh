@@ -22,4 +22,5 @@ if [[ `uname` == "Darwin" ]]; then
     alias iterm="/Applications/iTerm.app/Contents/MacOS/iTerm2 &"
     alias vlc='open -n /Applications/VLC.app/Contents/MacOS/VLC'
     alias vscode='/Applications/Visual\ Studio\ Code.app/Contents/MacOS/Electron'
+    alias parallel="/usr/local/bin/parallel --no-notice"
 fi;
