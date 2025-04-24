@@ -77,3 +77,21 @@ app_top () {
         | grep '^\d' --color=never -B 2 \
         | sed 's/^--$//g';
 }
+
+app_xtools () {
+    # List all x_tools commands within a given repo
+    # args: repo directory
+    local repo_dir='.';
+    if [ "$1" ]; then repo_dir=$1; fi;
+    cat "$repo_dir/docker/scripts/x_tools.sh" \
+        | grep -E '^[a-z_].* \(\) \{' -A 2 \
+        | grep -E '^[a-z_].* \(\)|^ +#' \
+        | sed -E 's/(.*) \(\) \{/@\1/' \
+        | tr '\n' ' ' \
+        | tr '@' '\n' \
+        | sed -E 's/^ +//' \
+        | grep -vE '^$' \
+        | awk -F '#' '{printf("%-40s%-90s%s\n", $1, $2, $3)}' \
+        | grep -vE '^_' \
+        | sort;
+}
