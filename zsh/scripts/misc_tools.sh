@@ -1,4 +1,4 @@
-# requires: ffmpeg, jq, parallel
+# requires: ffmpeg, jq, parallel, python3
 
 source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/ls_tools.sh
@@ -32,6 +32,37 @@ easy_unmount () {
     # args: directory
     sudo umount $1;
     sudo rm -rf $1;
+}
+
+_generate_password () {
+    # Generate password
+    python3 -c "
+import string
+import random
+
+alpha = string.ascii_lowercase
+nums = string.digits
+special = '~!@#$%^&*_+-=[];,?'
+chars = alpha + nums
+wa = len(alpha)
+wn = len(nums)
+weights = [wn / wa] * wa
+weights += [wa / wn] * wn
+weights = [x / sum(weights) for x in weights]
+password = random.choices(chars, weights=weights, k=18)
+password += random.choice(string.ascii_uppercase)
+password += random.choice(special)
+password = ''.join(password)
+print(password)
+";
+}
+
+generate_password () {
+    # Generate password and append it to /tmp/password.txt
+    local password=`source $ZSH_SCRIPTS/misc_tools.sh; _generate_password`;
+    touch /tmp/password.txt;
+    echo "$password" >> /tmp/password.txt;
+    echo "$password";
 }
 
 get_noncomments () {
@@ -152,7 +183,7 @@ tabulate () {
     if [ "$2" ]; then
         local format="$2";
     fi;
-    python3.11 -c "
+    python3 -c "
 import sys
 import yaml
 import tabulate as tb
