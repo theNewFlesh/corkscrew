@@ -1,4 +1,4 @@
-# requires: ffmpeg, jq, parallel, python3
+# requires: ffmpeg, jq, lunchbox, parallel, python3, tabulate
 
 source $ZSH_SCRIPTS/variables.sh
 source $ZSH_SCRIPTS/ls_tools.sh
@@ -132,7 +132,7 @@ _slack_it () {
     if [ "$message" = "" ]; then
         message=`cat /dev/stdin`
     fi;
-    lb slack "$1" "$2" "$message";
+    lunchbox slack "$1" "$2" "$message";
 }
 
 slack_it () {
@@ -219,48 +219,6 @@ print(diff)
 EOF
 )
     python3 -c "$cmd" "$1" "$2" "$sep" "$method" | grep -vE '^$';
-}
-
-missing_funcs () {
-    # Find difference between dev, corkscrew, oh-my-zsh defined funcs
-    local zsh="$ZSH_SCRIPTS";
-    local dev="$PROJECTS_DIR/dev/ansible/files/zsh/scripts";
-    local cork="$PROJECTS_DIR/corkscrew/zsh/scripts";
-
-    local cmd="rg '\(\)' | grep '\(\)' | sed 's/.*://' | sed 's/ .*//' | sort | tr '\n' ','";
-    local zsh=`eval "cd $zsh; $cmd"`;
-    local dev=`eval "cd $dev; $cmd"`;
-    local cork=`eval "cd $cork; $cmd"`;
-
-    local tmp=`set_logic $dev $zsh ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN DEV NOT IN OH-MY-ZSH${CLEAR}\n$tmp";
-    fi;
-
-    local tmp=`set_logic $zsh $dev ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN OH-MY-ZSH NOT IN DEV${CLEAR}\n$tmp";
-    fi;
-
-    local tmp=`set_logic $dev $cork ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN DEV NOT IN CORKSCREW${CLEAR}\n$tmp";
-    fi;
-
-    local tmp=`set_logic $cork $dev ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN CORKSCREW NOT IN DEV${CLEAR}\n$tmp";
-    fi;
-
-    local tmp=`set_logic $cork $zsh ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN CORKSCREW NOT IN OH-MY-ZSH${CLEAR}\n$tmp";
-    fi;
-
-    local tmp=`set_logic $zsh $cork ',' difference | sort | grep -vE '^$'`;
-    if [ "$tmp" != "" ]; then
-        echo "\n${CYAN2}IN OH-MY-ZSH NOT IN CORKSCREW${CLEAR}\n$tmp";
-    fi;
 }
 
 flat_json () {

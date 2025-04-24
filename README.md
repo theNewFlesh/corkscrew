@@ -92,6 +92,7 @@ as you may wish to comment out certain parts according to your taste.
   - iterm2
   - jq
   - kubectl
+  - lunchbox
   - nmap
   - nvidia-smi
   - oh-my-zsh
@@ -101,6 +102,7 @@ as you may wish to comment out certain parts according to your taste.
   - ripgrep
   - rsync
   - spd-say
+  - tabulate
   - telnet
   - vlc
   - vscode
