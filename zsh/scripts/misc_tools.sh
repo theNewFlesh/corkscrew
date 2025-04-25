@@ -34,6 +34,19 @@ easy_unmount () {
     sudo rm -rf $1;
 }
 
+flat_json () {
+    # Converts json input into flattened json
+    # args: JSON text
+    local json="$1";
+    if [ "$json" = "" ]; then
+        json=`cat /dev/stdin`
+    fi;
+    echo "$json" \
+    | jq -r 'paths(scalars) as $p | "\($p | join(".")): \(getpath($p))"' \
+    | yq --output-format json \
+    | jq -c;
+}
+
 _generate_password () {
     # Generate password
     python3 -c "
@@ -71,41 +84,25 @@ get_noncomments () {
     cat $1 | grep -v -E '^\w*#|^\w*//|^$';
 }
 
-kill_proc () {
-    # Kill processes that match given grep pattern
-    # args: pattern
-    ls_proc $1 --pid | xargs sudo kill -9;
-}
-
-notebook_cells () {
-    # Echo notebook cells of given ipynb file
-    # args: ipynb file
-    cat $1 \
-    | jq '.cells[].source' \
-    | sed -E 's/^ *"|",$|\\n//g' \
-    | sed -E 's/^\[\]|^\[//' \
-    | sed -E "s/^\]/\\$CYAN2$SPACER\\$CLEAR/" \
-    | parallel 'echo {}';
-}
-
-to_mp4 () {
-    # Convert given file to mp4
-    # args: video file
-    local SHAPE=`ffmpeg -i $1 2>&1 \
-        | grep Stream \
-        | grep Video \
-        | sed -E 's/.* ([0-9]+x[0-9]+).*/\1/'`; \
-    local SIZE="$3"000000; \
-    ffmpeg \
-        -i $1 \
-        -s $SHAPE \
-        -vcodec libx264 \
-        -preset veryslow \
-        -profile:v high444 \
-        -acodec aac \
-        -r 24 \
-        -movflags +faststart $2 \
-        -hide_banner;
+git_merge_prod () {
+    # Merge prod into master for a given repo
+    local branch='master';
+    local found=` \
+        git --no-pager branch --all --no-color \
+        | sed -E 's/\* /  /g' \
+        | grep -v remotes \
+        | grep main;
+    `;
+    if [ "$found" != "" ]; then
+        branch='main';
+    fi;
+    git checkout $branch;
+    git pull;
+    git checkout prod;
+    git pull;
+    git checkout $branch;
+    git merge prod --strategy ours --no-edit;
+    git push;
 }
 
 keygen () {
@@ -117,38 +114,33 @@ keygen () {
     chmod 400 $1.pub;
 }
 
-rm_cache () {
-    # Remove cache files and directories from given directories
-    # args: directory
-    find $1 \
-    | grep -E '__pycache__|\.pyc$|\.mypy_cache|\.pytest_cache' \
-    | parallel 'rm -rf {}';
+kill_proc () {
+    # Kill processes that match given grep pattern
+    # args: pattern
+    ls_proc $1 --pid | xargs sudo kill -9;
 }
 
-_slack_it () {
-    # Slack message to given channel
-    # args: url, channel, message
-    local message="$3";
-    if [ "$message" = "" ]; then
-        message=`cat /dev/stdin`
-    fi;
-    lunchbox slack "$1" "$2" "$message";
+lookup () {
+    # Searches all custom commands and aliases with given regex
+    # args: regex
+    local _alias=`ls_alias | awk '{printf("%-40s alias\n", $1)}'`;
+    (ls_cmd && echo "$_alias") \
+    | stdout_decolor \
+    | grep -iE "$1" \
+    | sed -E "s/'//g" \
+    | stdout_buffer \
+    | stdout_stripe;
 }
 
-slack_it () {
-    # Slack message to given channel
-    # args: channel, message
-    _slack_it $SLACK_URL "$1" "$2";
-}
-
-ssh_add_all () {
-    # Ssh-add all files in ~/.ssh
-    cd ~/.ssh;
-    ls | grep -vE '.DS_Store|config|\.pub$|^old$' \
-        | parallel "echo -n '{} '; cat {} | head -n 1" \
-    | grep -E '\-+BEGIN.*PRIVATE KEY-+' \
-    | awk '{print $1}' \
-    | parallel 'ssh-add {}';
+notebook_cells () {
+    # Echo notebook cells of given ipynb file
+    # args: ipynb file
+    cat $1 \
+    | jq '.cells[].source' \
+    | sed -E 's/^ *"|",$|\\n//g' \
+    | sed -E 's/^\[\]|^\[//' \
+    | sed -E "s/^\]/\\$CYAN2$SPACER\\$CLEAR/" \
+    | parallel 'echo {}';
 }
 
 progress () {
@@ -164,33 +156,12 @@ progress () {
     done;
 }
 
-lookup () {
-    # Searches all custom commands and aliases with given regex
-    # args: regex
-    local _alias=`ls_alias | awk '{printf("%-40s alias\n", $1)}'`;
-    (ls_cmd && echo "$_alias") \
-    | stdout_decolor \
-    | grep -iE "$1" \
-    | sed -E "s/'//g" \
-    | stdout_buffer \
-    | stdout_stripe;
-}
-
-tabulate () {
-    # Format YAML of stdin into table
-    # args: headers (comma separated), table-format=fancy_grid, stdin
-    local format='fancy_grid';
-    if [ "$2" ]; then
-        local format="$2";
-    fi;
-    python3 -c "
-import sys
-import yaml
-import tabulate as tb
-stdin = yaml.safe_load(sys.argv[1])
-stdout = tb.tabulate(stdin, headers='$1'.split(','), tablefmt='$format')
-print(stdout)
-" "`cat /dev/stdin`" && \
+rm_cache () {
+    # Remove cache files and directories from given directories
+    # args: directory
+    find $1 \
+    | grep -E '__pycache__|\.pyc$|\.mypy_cache|\.pytest_cache' \
+    | parallel 'rm -rf {}';
 }
 
 set_logic () {
@@ -221,42 +192,71 @@ EOF
     python3 -c "$cmd" "$1" "$2" "$sep" "$method" | grep -vE '^$';
 }
 
-flat_json () {
-    # Converts json input into flattened json
-    # args: JSON text
-    local json="$1";
-    if [ "$json" = "" ]; then
-        json=`cat /dev/stdin`
+_slack_it () {
+    # Slack message to given channel
+    # args: url, channel, message
+    local message="$3";
+    if [ "$message" = "" ]; then
+        message=`cat /dev/stdin`
     fi;
-    echo "$json" \
-    | jq -r 'paths(scalars) as $p | "\($p | join(".")): \(getpath($p))"' \
-    | yq --output-format json \
-    | jq -c;
+    lb slack "$1" "$2" "$message";
 }
 
-git_merge_prod () {
-    # Merge prod into master for a given repo
-    local branch='master';
-    local found=` \
-        git --no-pager branch --all --no-color \
-        | sed -E 's/\* /  /g' \
-        | grep -v remotes \
-        | grep main;
-    `;
-    if [ "$found" != "" ]; then
-        branch='main';
-    fi;
-    git checkout $branch;
-    git pull;
-    git checkout prod;
-    git pull;
-    git checkout $branch;
-    git merge prod --strategy ours --no-edit;
-    git push;
+slack_it () {
+    # Slack message to given channel
+    # args: channel, message
+    _slack_it $SLACK_URL "$1" "$2";
+}
+
+ssh_add_all () {
+    # Ssh-add all files in ~/.ssh
+    cd ~/.ssh;
+    ls | grep -vE '.DS_Store|config|\.pub$|^old$' \
+        | parallel "echo -n '{} '; cat {} | head -n 1" \
+    | grep -E '\-+BEGIN.*PRIVATE KEY-+' \
+    | awk '{print $1}' \
+    | parallel 'ssh-add {}';
 }
 
 ssh_exec () {
     # SSH to a machine and run a given command
     # args: machine, command 
     ssh $1 "/bin/zsh -c 'source ~/.zshrc; $2'";
+}
+
+tabulate () {
+    # Format YAML of stdin into table
+    # args: headers (comma separated), table-format=fancy_grid, stdin
+    local format='fancy_grid';
+    if [ "$2" ]; then
+        local format="$2";
+    fi;
+    python3.11 -c "
+import sys
+import yaml
+import tabulate as tb
+stdin = yaml.safe_load(sys.argv[1])
+stdout = tb.tabulate(stdin, headers='$1'.split(','), tablefmt='$format')
+print(stdout)
+" "`cat /dev/stdin`" && \
+}
+
+to_mp4 () {
+    # Convert given file to mp4
+    # args: video file
+    local SHAPE=`ffmpeg -i $1 2>&1 \
+        | grep Stream \
+        | grep Video \
+        | sed -E 's/.* ([0-9]+x[0-9]+).*/\1/'`; \
+    local SIZE="$3"000000; \
+    ffmpeg \
+        -i $1 \
+        -s $SHAPE \
+        -vcodec libx264 \
+        -preset veryslow \
+        -profile:v high444 \
+        -acodec aac \
+        -r 24 \
+        -movflags +faststart $2 \
+        -hide_banner;
 }
