@@ -1,12 +1,5 @@
 # requires: arp, curl, iputils, nmap, parallel
 
-net_delete_known_host () {
-    # Delete problematic host from ~/.ssh/known_hosts
-    # args: host
-    local line=$(ssh $1 2>&1 | grep Offending | sed -E 's/.*:(.*)/\1\td/' | tr -d '[:space:]');
-    sed -i -e $line ~/.ssh/known_hosts;
-}
-
 net_config_ip () {
     # Get IP of given hostname in ~/.ssh/config
     # args: hostname
@@ -31,10 +24,11 @@ net_config_name () {
     cat ~/.ssh/config | grep $1 -B 2 | grep -i 'host ' | awk '{print $2}';
 }
 
-net_post_json () {
-    # Curl post JSON content
-    # args: url, json data
-    curl -s -H "Content-Type: application/json" $1 --data $2;
+net_delete_known_host () {
+    # Delete problematic host from ~/.ssh/known_hosts
+    # args: host
+    local line=$(ssh $1 2>&1 | grep Offending | sed -E 's/.*:(.*)/\1\td/' | tr -d '[:space:]');
+    sed -i -e $line ~/.ssh/known_hosts;
 }
 
 net_interfaces () {
@@ -77,6 +71,12 @@ net_ping_all () {
         " \
         | awk -F '>' '{printf("%-20s %-20s %s\n", $1, $3, $2)}' \
         | sort;
+}
+
+net_post_json () {
+    # Curl post JSON content
+    # args: url, json data
+    curl -s -H "Content-Type: application/json" $1 --data $2;
 }
 
 net_table () {
