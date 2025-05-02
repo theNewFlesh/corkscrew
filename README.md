@@ -83,7 +83,7 @@ as you may wish to comment out certain parts according to your taste.
   - curl
   - docker
   - dockviz
-  - exa
+  - eza
   - ffmpeg
   - git
   - glab
@@ -132,4 +132,4 @@ as you may wish to comment out certain parts according to your taste.
   - The last line in the zshrc file sources all the scripts in ~/.oh-my-zsh/custom/scripts
   - Some scripts alter shell keybindings
   - Some scripts reassign common terminal utilities like `cat`
-  - Some functions expect packages to exist on your system like `parallel` and `exa`
+  - Some functions expect packages to exist on your system like `parallel` and `eza`
