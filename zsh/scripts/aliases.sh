@@ -1,4 +1,4 @@
-# requires: docker, dockviz, exa, git, parallel, pylint, rsync
+# requires: docker, dockviz, eza, git, parallel, pylint, rsync
 
 source $ZSH_SCRIPTS/variables.sh
 
@@ -7,12 +7,12 @@ source $ZSH_SCRIPTS/variables.sh
 #alias deactivate="source deactivate"
 alias df="df -h | grep -vE 'snap|tmpfs'"
 alias grep="grep --color=auto"
-alias l="exa --long --header"
-alias ll="exa --long --header --all"
+alias l="eza --long --header"
+alias ll="eza --long --header --all"
 alias parallel="parallel --no-notice"
 alias pylint-dev="pylint -f colorized -r n"
 alias rsync="rsync -auHP"
-alias tree="exa --tree --all"
+alias tree="eza --tree --all"
 
 # git
 alias git-log-dev="git log --graph --oneline --decorate --all"
