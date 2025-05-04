@@ -258,23 +258,39 @@ _repo_state () {
     local pwd=`pwd`;
     cd $1;
     local REPO=`echo $1 | sed -E 's/.*\///'`;
-    local VERSION=`
-        source $ZSH_SCRIPTS/repo_tools.sh; \
-        repo_version . \
-    `;
+
+    # version
+    local VERSION=`source $ZSH_SCRIPTS/repo_tools.sh; repo_version .`;
+    if [ "$VERSION" = 'none' ]; then
+        VERSION="${PURPLE1}$VERSION${CLEAR}";
+    else
+        VERSION="${YELLOW1}$VERSION${CLEAR}";
+    fi;
+
+    # branch
     local BRANCH=`git branch --show-current`;
+    local master=`echo $BRANCH | grep -E '^(master|main)$'`;
+    if [ "$master" != '' ]; then
+        BRANCH="${CYAN1}$BRANCH${CLEAR}";
+    else
+        BRANCH="${YELLOW1}$BRANCH${CLEAR}";
+    fi;
+
     local COMMIT=`git --no-pager log -n 1 --abbrev-commit | head -n 1 | sed -E 's/^commit +//'`;
     local MESSAGE=`git --no-pager log -n 1 | tail -n 1 | sed -E 's/^ +//' | cut -c -50`;
+
+    # state
     local STATUS=`git status -s`;
     local STATE="${GREEN1}clean${CLEAR}";
     if [ "$STATUS" ]; then
         local STATE="${RED1}dirty${CLEAR}";
     fi;
+
     echo "repo: ${CYAN1}$REPO${CLEAR}\
-|version: ${YELLOW1}$VERSION${CLEAR}\
+|version: ${VERSION}\
 |state: ${STATE}\
-|branch: ${GREEN1}$BRANCH${CLEAR}\
-|commit: ${RED1}$COMMIT${CLEAR}\
+|branch: ${BRANCH}\
+|commit: ${PURPLE1}$COMMIT${CLEAR}\
 |message: ${BLUE1}$MESSAGE${CLEAR}";
 }
 
