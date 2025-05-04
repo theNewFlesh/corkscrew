@@ -271,7 +271,7 @@ _repo_state () {
     local BRANCH=`git branch --show-current`;
     local master=`echo $BRANCH | grep -E '^(master|main)$'`;
     if [ "$master" != '' ]; then
-        BRANCH="${CYAN1}$BRANCH${CLEAR}";
+        BRANCH="${BLUE1}$BRANCH${CLEAR}";
     else
         BRANCH="${YELLOW1}$BRANCH${CLEAR}";
     fi;
@@ -286,19 +286,25 @@ _repo_state () {
         local STATE="${RED1}dirty${CLEAR}";
     fi;
 
-    echo "repo: ${CYAN1}$REPO${CLEAR}\
+    echo "repo: ${GREY2}$REPO${CLEAR}\
 |version: ${VERSION}\
 |state: ${STATE}\
 |branch: ${BRANCH}\
-|commit: ${PURPLE1}$COMMIT${CLEAR}\
-|message: ${BLUE1}$MESSAGE${CLEAR}";
+|commit: ${GREY2}$COMMIT${CLEAR}\
+|message: ${GREY2}$MESSAGE${CLEAR}";
 }
 
 repo_state () {
     # List git statu of all git repos under given directory in simple table
     # args: directory=$PROJECTS_DIR
+    echo "${CYAN1}REPO,VERSION,STATE,BRANCH,COMMIT,MESSAGE${CLEAR}" \
+    | awk -F ',' '{printf("%-41s%-10s%-9s%-32s%-11s%s\n", $1, $2, $3, $4, $5, $6)}';
+
     _repo_list_long $1 | parallel \
         "source $ZSH_SCRIPTS/repo_tools.sh; _repo_state {}" \
     | sort \
-    | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}';
+    | awk -F '|' '{printf("%-50s %-29s %-26s %-50s %-29s %-50s\n", $1, $2, $3, $4, $5, $6)}' \
+    | sed -E 's/[a-z]+: //g' \
+    | stdout_buffer \
+    | stdout_stripe invert;
 }
