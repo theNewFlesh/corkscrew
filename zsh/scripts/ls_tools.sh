@@ -48,7 +48,7 @@ ls_cruft () {
     app_list \
         | f_find cruft.json \
         | sed -E 's/\/.*//' \
-        | f_line "cat {}/.cruft.json | grep commit | sed -E 's/.* \"|\",//g'" \
+        | f_line "cat {}/.cruft.json | grep commit | head -n 1 | sed -E 's/.* \"|\",//g'" \
         | parallel \
             "echo '%{}' \
             | sed -E 's/(.*) (.*)/echo \1; \
