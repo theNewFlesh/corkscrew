@@ -1,5 +1,7 @@
 # requires: docker, parallel, vscode
 
+source $ZSH_SCRIPTS/stdout_tools.sh
+
 app_list () {
     # List all datalus style repos in a given directory
     # args: directory=$PROJECTS_DIR
@@ -21,12 +23,19 @@ app_state () {
     # args: directory=$PROJECTS_DIR
     local projects=$PROJECTS_DIR;
     if [ "$1" ]; then projects=$1; fi;
+
+    echo "${CYAN1}APP,VERSION,IMAGE,CONTAINER,PORTS${CLEAR}" \
+        | awk -F ',' '{printf("%-32s%-12s%-11s%-12s%s\n", $1, $2, $3, $4, $5)}';
+
     app_list $projects \
         | parallel "cd $projects/{}; bin/{} state 2>&1 | grep -E app" \
         | sort \
         | sed 's/ -/\t/g' \
-        | awk '{printf("%s %-34s %9s %-19s %9s %-20s %11s %-20s %7s %-29s %20s %-29s %20s %-29s %20s\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)}' \
-        | sed -E 's/ +$//g';
+        | awk '{printf("%s %-34s %9s %-19s %9s %-20s %11s %-21s %7s %-29s %20s %-29s %20s %-29s %20s\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)}' \
+        | sed -E 's/ +$//g' \
+        | sed -E 's/[a-z]+: //g' \
+        | stdout_buffer \
+        | stdout_stripe invert;
 }
 
 app_ports () {
@@ -43,7 +52,8 @@ app_ports () {
     `;
     app_state \
         | stdout_decolor \
-        | awk '{print $2, $10}' \
+        | grep -v CONTAINER \
+        | awk '{print $1, $5}' \
         | grep '\-\->' \
         | sed 's/-->.*//' \
         | sed -E 's/ (..).*/ \1/' \

@@ -1,6 +1,7 @@
 # requires: parallel
 
 source $ZSH_SCRIPTS/variables.sh
+source $ZSH_SCRIPTS/stdout_tools.sh
 
 _repo_list_long () {
     # List all git repo fullpaths under a given directory
