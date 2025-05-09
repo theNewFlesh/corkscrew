@@ -13,28 +13,28 @@ chmod_it () {
 
 colorscheme () {
     # Display color scheme information
-    echo "${CYAN2}NAME       HEX        TERMINAL    ${CLEAR}
+    echo "${CYAN2}NAME       HEX        TERMINAL${CLEAR}
 ${DARK1}dark1      #040404                ${CLEAR}
 ${DARK2}dark2      #141414                ${CLEAR}
 bg         #242424
-${GREY1}grey1      #343434    \\\033[0;90m$ ${CLEAR}
-${GREY2}grey2      #444444    \\\033[0;37m$ ${CLEAR}
-${LIGHT1}light1     #A4A4A4    \\\033[0;97m$ ${CLEAR}
-${LIGHT2}light2     #F4F4F4    \\\033[0;97m$ ${CLEAR}
-${RED1}red1       #F77E70    \\\033[0;31m$ ${CLEAR}
-${RED2}red2       #DE958E    \\\033[0;91m$ ${CLEAR}
+${GREY1}grey1      #343434    \\\033[0;90m${CLEAR}
+${GREY2}grey2      #444444    \\\033[0;37m${CLEAR}
+${LIGHT1}light1     #A4A4A4    \\\033[0;97m${CLEAR}
+${LIGHT2}light2     #F4F4F4    \\\033[0;97m${CLEAR}
+${RED1}red1       #F77E70    \\\033[0;31m${CLEAR}
+${RED2}red2       #DE958E    \\\033[0;91m${CLEAR}
 ${ORANGE1}orange1    #EB9E58                ${CLEAR}
 ${ORANGE2}orange2    #EBB483                ${CLEAR}
-${YELLOW1}yellow1    #E8EA7E    \\\033[0;33m$ ${CLEAR}
-${YELLOW2}yellow2    #E9EABE    \\\033[0;93m$ ${CLEAR}
-${GREEN1}green1     #8BD155    \\\033[0;32m$ ${CLEAR}
-${GREEN2}green2     #A0D17B    \\\033[0;92m$ ${CLEAR}
-${CYAN1}cyan1      #7EC4CF    \\\033[0;36m$ ${CLEAR}
-${CYAN2}cyan2      #B6ECF3    \\\033[0;96m$ ${CLEAR}
-${BLUE1}blue1      #5F95DE    \\\033[0;34m$ ${CLEAR}
-${BLUE2}blue2      #93B6E6    \\\033[0;94m$ ${CLEAR}
-${PURPLE1}purple1    #C98FDE    \\\033[0;35m$ ${CLEAR}
-${PURPLE2}purple2    #AC92DE    \\\033[0;95m$ ${CLEAR}
+${YELLOW1}yellow1    #E8EA7E    \\\033[0;33m${CLEAR}
+${YELLOW2}yellow2    #E9EABE    \\\033[0;93m${CLEAR}
+${GREEN1}green1     #8BD155    \\\033[0;32m${CLEAR}
+${GREEN2}green2     #A0D17B    \\\033[0;92m${CLEAR}
+${CYAN1}cyan1      #7EC4CF    \\\033[0;36m${CLEAR}
+${CYAN2}cyan2      #B6ECF3    \\\033[0;96m${CLEAR}
+${BLUE1}blue1      #5F95DE    \\\033[0;34m${CLEAR}
+${BLUE2}blue2      #93B6E6    \\\033[0;94m${CLEAR}
+${PURPLE1}purple1    #C98FDE    \\\033[0;35m${CLEAR}
+${PURPLE2}purple2    #AC92DE    \\\033[0;95m${CLEAR}
 clear                 \\\033[0m
 ";
 }
