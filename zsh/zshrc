@@ -35,6 +35,7 @@ export ZSH_DISABLE_COMPFIX=true
 source $ZSH/oh-my-zsh.sh
 source $ZSH/oh-my-zsh.sh
 zstyle ':completion:*:*:cd:*' list-colors '=*=36;40' tag-order local-directories directory-stack path-directories
+fast-theme $ZSH/custom/themes/henanigans-syntax-theme.ini >> /dev/null 2>&1
 
 # SCRIPTS-----------------------------------------------------------------------
 for script in $ZSH/custom/scripts/*; do
