@@ -13,9 +13,6 @@ if [[ `uname` == "Darwin" ]]; then
         open /Applications/BetterSnapTool.app; \
     }
 
-    alias cat="bat"
-    alias pcat="bat --plain --color never"
-    alias xcat="bat --show-all"
     alias bettersnap-keyboard='bettersnap keyboard'
     alias bettersnap-numpad='bettersnap numpad'
     alias brave='/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser'

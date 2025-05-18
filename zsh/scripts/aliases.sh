@@ -5,6 +5,10 @@ source $ZSH_SCRIPTS/variables.sh
 # generic tools
 #alias activate="source activate"
 #alias deactivate="source deactivate"
+alias cat="bat"
+alias pcat="bat --plain --color never"
+alias rcat="bat --style rule"
+alias xcat="bat --show-all"
 alias df="df -h | grep -vE 'snap|tmpfs'"
 alias grep="grep --color=auto"
 alias l="eza --long --header"
