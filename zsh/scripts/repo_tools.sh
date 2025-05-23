@@ -208,7 +208,7 @@ repo_version () {
                 ! -path "**/node_modules/*" \
                 ! -path "**/.git/*" \
                 ! -path "**/labextension/*" \
-            | grep -E 'package.json' \
+            | grep -E '\./package.json' \
             | head -n 1 \
         `;
     fi;
