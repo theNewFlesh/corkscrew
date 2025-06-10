@@ -90,14 +90,14 @@ ls_docker_images () {
     # List all docker images in a nicely formatted table
     local header=`
         echo "${CYAN2}REPOSITORY|TAG|SIZE|CREATED|ID${CLEAR}" \
-        | awk -F '|' '{printf("%-47s%-20s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
+        | awk -F '|' '{printf("%-47s%-30s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
     `;
     local body=`docker images \
         --format '{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}|{{.ID}}' \
         | sort \
         | grep -v none \
         | sed -E 's/(vsc-[^;]+)-[^;]+-uid/\1/' \
-        | awk -F '|' '{printf("%-40s%-20s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
+        | awk -F '|' '{printf("%-40s%-30s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
     `;
     echo "$header\n$body" | stdout_buffer | stdout_stripe;
 }
