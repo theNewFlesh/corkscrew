@@ -97,6 +97,7 @@ ls_docker_images () {
         | sort \
         | grep -v none \
         | sed -E 's/(vsc-[^;]+)-[^;]+-uid/\1/' \
+        | sed -E 's/^.*amazonaws.com/aws/' \
         | awk -F '|' '{printf("%-40s%-30s%-10s%-35s%s\n", $1, $2, $3, $4, $5)}'
     `;
     echo "$header\n$body" | stdout_buffer | stdout_stripe;
