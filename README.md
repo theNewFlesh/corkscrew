@@ -97,7 +97,6 @@ as you may wish to comment out certain parts according to your taste.
   - nvidia-smi
   - oh-my-zsh
   - parallel
-  - pylint
   - python3
   - ripgrep
   - rsync

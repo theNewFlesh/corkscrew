@@ -1,4 +1,4 @@
-# requires: docker, dockviz, eza, git, parallel, pylint, rsync
+# requires: docker, dockviz, eza, git, parallel, rsync
 
 source $ZSH_SCRIPTS/variables.sh
 
@@ -14,7 +14,6 @@ alias grep="grep --color=auto"
 alias l="eza --long --header"
 alias ll="eza --long --header --all"
 alias parallel="parallel --no-notice"
-alias pylint-dev="pylint -f colorized -r n"
 alias rsync="rsync -auHP"
 alias tree="eza --tree --all"
 
