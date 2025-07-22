@@ -130,7 +130,7 @@ git_merge_prod () {
     git checkout prod;
     git pull;
     git checkout $branch;
-    git merge prod --strategy ours --no-edit;
+    git merge prod --strategy ours --no-edit --message 'merged in prod <no ci>';
     git push;
 }
 
